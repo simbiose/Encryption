@@ -11,7 +11,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package simbio.se.encryption;
+package se.simbio.encryption;
 
 import android.R.string;
 import android.util.Base64;

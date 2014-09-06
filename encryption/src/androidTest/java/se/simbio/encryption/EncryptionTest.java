@@ -1,9 +1,11 @@
-package simbio.se.encryption;
+package se.simbio.encryption;
 
 import android.test.InstrumentationTestCase;
 import android.util.Log;
 
 import java.util.Random;
+
+import se.simbio.encryption.Encryption;
 
 public class EncryptionTest extends InstrumentationTestCase {
 
