@@ -3,6 +3,8 @@ Encryption
 
 Encryption is a simple way to create encrypted strings to Android project.
 
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-encryption-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/935)
+
 #How to use#
 1º Add the gradle dependencie
 ```
