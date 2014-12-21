@@ -8,7 +8,7 @@ Encryption is a simple way to create encrypted strings to Android project.
 #How to use#
 1º Add the gradle dependency
 ```
-compile 'se.simbio.encryption:library:1.0.0'
+compile 'se.simbio.encryption:library:1.1.0'
 ```
 2º Use it
 ```
