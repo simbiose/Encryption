@@ -36,61 +36,20 @@ public class Encryption {
 
     private static final String TAG = "Encryption";
 
+    //char set
     private String mCharsetName = "UTF8";
+    //base mode
     private int mBase64Mode = Base64.DEFAULT;
-
     //type of aes key that will be created
-    private String SECRET_KEY_TYPE = "PBKDF2WithHmacSHA1";
-    //value used for salting....can be anything
-    private String salt = "some_salt";
+    private String mSecretKeyType = "PBKDF2WithHmacSHA1";
+    //value used for salting. can be anything
+    private String mSalt = "some_salt";
     //length of key
-    private int KEY_LENGTH = 128;
+    private int mKeyLength = 128;
     //number of times the password is hashed
-    private int ITERATION_COUNT = 65536;
+    private int mIterationCount = 65536;
     //main family of aes
     private String mAlgorithm = "AES";
-
-    /**
-     * @return the charset name
-     */
-    public String getCharsetName() {
-        return mCharsetName;
-    }
-
-    /**
-     * @param charsetName the new charset name
-     */
-    public void setCharsetName(String charsetName) {
-        mCharsetName = charsetName;
-    }
-
-    /**
-     * @return the mAlgorithm used
-     */
-    public String getAlgorithm() {
-        return mAlgorithm;
-    }
-
-    /**
-     * @param algorithm the mAlgorithm to be used
-     */
-    public void setAlgorithm(String algorithm) {
-        mAlgorithm = algorithm;
-    }
-
-    /**
-     * @return the Base 64 mode
-     */
-    public int getBase64Mode() {
-        return mBase64Mode;
-    }
-
-    /**
-     * @param base64Mode set the base 64 mode
-     */
-    public void setBase64Mode(int base64Mode) {
-        mBase64Mode = base64Mode;
-    }
 
     /**
      * Encrypt a {@link string}
@@ -141,21 +100,21 @@ public class Encryption {
      * creates a 128bit salted aes key
      *
      * @param key encoded input key
+     *
      * @return aes 128 bit salted key
+     *
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      * @throws InvalidKeySpecException
      */
-    private SecretKey getSecretKey(char[] key) throws NoSuchAlgorithmException,
-            UnsupportedEncodingException,
-            InvalidKeySpecException {
-        SecretKeyFactory factory = null;
-        factory = SecretKeyFactory.getInstance(SECRET_KEY_TYPE);
+    private SecretKey getSecretKey(char[] key) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeySpecException {
+        SecretKeyFactory factory;
+        factory = SecretKeyFactory.getInstance(mSecretKeyType);
 
         KeySpec spec = new PBEKeySpec(key,
-                salt.getBytes(mCharsetName),
-                ITERATION_COUNT,
-                KEY_LENGTH);
+                mSalt.getBytes(mCharsetName),
+                mIterationCount,
+                mKeyLength);
 
         SecretKey tmp = factory.generateSecret(spec);
         return new SecretKeySpec(tmp.getEncoded(), mAlgorithm);
@@ -167,15 +126,118 @@ public class Encryption {
      * and return the char array
      *
      * @param key simple inputted string
+     *
      * @return sha1 base64 encoded representation
+     *
      * @throws UnsupportedEncodingException
      * @throws NoSuchAlgorithmException
      */
-    private char[] hashTheKey(String key) throws UnsupportedEncodingException,
-            NoSuchAlgorithmException {
-
+    private char[] hashTheKey(String key) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA1");
         md.update(key.getBytes(mCharsetName));
-        return Base64.encodeToString(md.digest(),Base64.NO_PADDING).toCharArray();
+        return Base64.encodeToString(md.digest(), Base64.NO_PADDING).toCharArray();
     }
+
+    //region getters and setters
+
+    /**
+     * @return the charset name
+     */
+    public String getCharsetName() {
+        return mCharsetName;
+    }
+
+    /**
+     * @param charsetName the new charset name
+     */
+    public void setCharsetName(String charsetName) {
+        mCharsetName = charsetName;
+    }
+
+    /**
+     * @return the mAlgorithm used
+     */
+    public String getAlgorithm() {
+        return mAlgorithm;
+    }
+
+    /**
+     * @param algorithm the mAlgorithm to be used
+     */
+    public void setAlgorithm(String algorithm) {
+        mAlgorithm = algorithm;
+    }
+
+    /**
+     * @return the Base 64 mode
+     */
+    public int getBase64Mode() {
+        return mBase64Mode;
+    }
+
+    /**
+     * @param base64Mode set the base 64 mode
+     */
+    public void setBase64Mode(int base64Mode) {
+        mBase64Mode = base64Mode;
+    }
+
+    /**
+     * @return the type of aes key that will be created
+     */
+    public String getSecretKeyType() {
+        return mSecretKeyType;
+    }
+
+    /**
+     * @param secretKeyType the type of aes key that will be created//
+     */
+    public void setSecretKeyType(String secretKeyType) {
+        mSecretKeyType = secretKeyType;
+    }
+
+    /**
+     * @return the value used for salting
+     */
+    public String getSalt() {
+        return mSalt;
+    }
+
+    /**
+     * @param salt the value used for salting.
+     */
+    public void setSalt(String salt) {
+        mSalt = salt;
+    }
+
+    /**
+     * @return the length of key
+     */
+    public int getKeyLength() {
+        return mKeyLength;
+    }
+
+    /**
+     * @param keyLength the length of key
+     */
+    public void setKeyLength(int keyLength) {
+        mKeyLength = keyLength;
+    }
+
+    /**
+     * @return the number of times the password is hashed
+     */
+    public int getIterationCount() {
+        return mIterationCount;
+    }
+
+    /**
+     * @param iterationCount the number of times the password is hashed
+     */
+    public void setIterationCount(int iterationCount) {
+        mIterationCount = iterationCount;
+    }
+
+    //endregion
+
 }
