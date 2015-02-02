@@ -14,6 +14,7 @@
 package se.simbio.encryption;
 
 import android.R.string;
+import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
 
@@ -40,7 +41,7 @@ public class Encryption {
     private String mCharsetName = "UTF8";
     //base mode
     private int mBase64Mode = Base64.DEFAULT;
-    //type of aes key that will be created
+    //type of aes key that will be created, on KITKAT+ the API has changed, if you are getting problems please @see <a href="http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html">http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html</a>
     private String mSecretKeyType = "PBKDF2WithHmacSHA1";
     //value used for salting. can be anything
     private String mSalt = "some_salt";
