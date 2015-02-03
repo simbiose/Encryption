@@ -4,7 +4,6 @@ import android.test.InstrumentationTestCase;
 import android.util.Log;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.crypto.spec.IvParameterSpec;
@@ -19,9 +18,7 @@ public class EncryptionTest extends InstrumentationTestCase {
 
         //this is just a test, you should use a secure IV !!!!
         byte[] iv = {-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7};
-
-        Encryption encryption = new Encryption();
-        encryption.setIv(iv);
+        Encryption encryption = Encryption.getSecureDefault(iv);
 
         String encrypted = encryption.encrypt(key, secretText);
         String decrypted = encryption.decrypt(key, encrypted);
@@ -33,7 +30,7 @@ public class EncryptionTest extends InstrumentationTestCase {
     }
 
     public void testEncryptionWithRandomText() {
-        Encryption encryption = new Encryption();
+        Encryption encryption = Encryption.getDefault();
         assertNotNull(encryption);
 
         Random random = new Random();
@@ -59,7 +56,7 @@ public class EncryptionTest extends InstrumentationTestCase {
     }
 
     public void testEncryptionWithPredeterminedText() {
-        Encryption encryption = new Encryption();
+        Encryption encryption = Encryption.getDefault();
         assertNotNull(encryption);
 
         String textToEncrypt = "Top Secret Text";
@@ -77,7 +74,7 @@ public class EncryptionTest extends InstrumentationTestCase {
     }
 
     public void testEncryptionWithDifferentInstances() {
-        Encryption encryptEncryption = new Encryption();
+        Encryption encryptEncryption = Encryption.getDefault();
         assertNotNull(encryptEncryption);
 
         String textToEncrypt = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.";
@@ -88,12 +85,7 @@ public class EncryptionTest extends InstrumentationTestCase {
         Log.d(TAG, String.format("Text encrypted: %s", encryptedText));
         assertNotNull(encryptedText);
 
-        byte[] iv = encryptEncryption.getIv();
-        Log.d(TAG, String.format("The IV: %s", Arrays.toString(iv)));
-        assertNotNull(iv);
-
-        Encryption decryptEncryption = new Encryption();
-        decryptEncryption.setIv(iv);
+        Encryption decryptEncryption = Encryption.getDefault();
         assertNotNull(decryptEncryption);
 
         String decryptedText = decryptEncryption.decrypt(encryptKey, encryptedText);
@@ -103,57 +95,64 @@ public class EncryptionTest extends InstrumentationTestCase {
     }
 
     public void testGetterAndSetter() throws Exception {
-        Encryption encryption = new Encryption();
-        assertNotNull(encryption);
+        Encryption.Builder builder = Encryption.Builder.getDefaultBuilder();
+        assertNotNull(builder);
 
         String charsetName = "charsetName";
-        encryption.setCharsetName(charsetName);
-        assertEquals(charsetName, encryption.getCharsetName());
+        builder.setCharsetName(charsetName);
+        assertEquals(charsetName, builder.getCharsetName());
 
         String algorithm = "algorithm";
-        encryption.setAlgorithm(algorithm);
-        assertEquals(algorithm, encryption.getAlgorithm());
+        builder.setAlgorithm(algorithm);
+        assertEquals(algorithm, builder.getAlgorithm());
 
         int base64Mode = (int) (Math.random() * Integer.MAX_VALUE);
-        encryption.setBase64Mode(base64Mode);
-        assertEquals(base64Mode, encryption.getBase64Mode());
+        builder.setBase64Mode(base64Mode);
+        assertEquals(base64Mode, builder.getBase64Mode());
 
         String secretKeyType = "secretKeyType";
-        encryption.setSecretKeyType(secretKeyType);
-        assertEquals(secretKeyType, encryption.getSecretKeyType());
+        builder.setSecretKeyType(secretKeyType);
+        assertEquals(secretKeyType, builder.getSecretKeyType());
 
         String salt = "salt";
-        encryption.setSalt(salt);
-        assertEquals(salt, encryption.getSalt());
+        builder.setSalt(salt);
+        assertEquals(salt, builder.getSalt());
 
         int keyLength = (int) (Math.random() * Integer.MAX_VALUE);
-        encryption.setKeyLength(keyLength);
-        assertEquals(keyLength, encryption.getKeyLength());
+        builder.setKeyLength(keyLength);
+        assertEquals(keyLength, builder.getKeyLength());
 
         int iterationCount = (int) (Math.random() * Integer.MAX_VALUE);
-        encryption.setIterationCount(iterationCount);
-        assertEquals(iterationCount, encryption.getIterationCount());
+        builder.setIterationCount(iterationCount);
+        assertEquals(iterationCount, builder.getIterationCount());
 
         String secureRandomAlgorithm = "secureRandomAlgorithm";
-        encryption.setSecureRandomAlgorithm(secureRandomAlgorithm);
-        assertEquals(secureRandomAlgorithm, encryption.getSecureRandomAlgorithm());
+        builder.setSecureRandomAlgorithm(secureRandomAlgorithm);
+        assertEquals(secureRandomAlgorithm, builder.getSecureRandomAlgorithm());
 
-        encryption.setSecureRandomAlgorithm("SHA1PRNG");
-        SecureRandom secureRandom = encryption.getSecureRandom();
-        assertNotNull(secureRandom);
-        encryption.setSecureRandom(secureRandom);
-        assertEquals(secureRandom, encryption.getSecureRandom());
+        String digestAlgorithm = "SHA1";
+        builder.setDigestAlgorithm(digestAlgorithm);
+        assertEquals(digestAlgorithm, builder.getDigestAlgorithm());
 
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryption.generateSecureRandomIv());
-        encryption.setIvParameterSpec(ivParameterSpec);
-        assertEquals(ivParameterSpec, encryption.getIvParameterSpec());
-
-        byte[] iv = encryption.generateSecureRandomIv();
-        encryption.setIv(iv);
-        assertEquals(iv.length, encryption.getIv().length);
+        byte[] iv = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, -1, -2, -3, -4, -5, -6};
+        builder.setIv(iv);
+        assertEquals(iv.length, builder.getIv().length);
         for (int i = 0; i < iv.length; i++) {
-            assertEquals(iv[i], encryption.getIv()[i]);
+            assertEquals(iv[i], builder.getIv()[i]);
         }
+
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+        builder.setIvParameterSpec(ivParameterSpec);
+        assertEquals(ivParameterSpec, builder.getIvParameterSpec());
+
+        builder.setSecureRandomAlgorithm("SHA1PRNG");
+        SecureRandom secureRandom = builder.getSecureRandom();
+        assertNull(secureRandom);
+        builder.build();
+        secureRandom = builder.getSecureRandom();
+        assertNotNull(secureRandom);
+        builder.setSecureRandom(secureRandom);
+        assertEquals(secureRandom, builder.getSecureRandom());
     }
 
 }
