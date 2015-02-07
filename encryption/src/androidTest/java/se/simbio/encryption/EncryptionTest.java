@@ -150,7 +150,7 @@ public class EncryptionTest extends InstrumentationTestCase {
                 .setIterationCount(65536)
                 .setKey("mor€Z€cr€tKYss")
                 .setDigestAlgorithm("SHA1")
-                .setSalt("An beautiful salt")
+                .setSalt("A beautiful salt")
                 .setBase64Mode(Base64.DEFAULT)
                 .setAlgorithm("AES/CBC/PKCS5Padding")
                 .setSecureRandomAlgorithm("SHA1PRNG")

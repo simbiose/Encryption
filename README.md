@@ -8,23 +8,55 @@ Encryption is a simple way to create encrypted strings to Android project.
 #How to use#
 1º Add the gradle dependency
 ```
-compile 'se.simbio.encryption:library:1.1.0'
+compile 'se.simbio.encryption:library:1.2.0'
 ```
-2º Use it
+2º a) Get an Encryption instance
 ```
-String key = "$3creTQei";
-String secretText = "Text to be encrypt";
-Encryption encryption = new Encryption();
-String encrypted = encryption.encrypt(key, secretText);
-String decrypted = encryption.decrypt(key, encrypted);
-Log.d("Encryption", String.format("The text '%s' encrypted with key '%s' is %s", secretText, key, encrypted));
-Log.d("Encryption", String.format("This is the text '%s' decrypted with key '%s' on %s", decrypted, key, encrypted));
+Encryption encryption = Encryption.getDefault("YourKey", "YourSalt", yourByteIvArrayWith16Items);
 ```
+2º b) Or build a new Encryption instance
+```
+Encryption encryption = new Encryption.Builder()
+                .setKeyLength(128)
+                .setCharsetName("UTF8")
+                .setIterationCount(65536)
+                .setKey("YourKey")
+                .setDigestAlgorithm("SHA1")
+                .setSalt("YourSalt")
+                .setBase64Mode(Base64.DEFAULT)
+                .setAlgorithm("AES/CBC/PKCS5Padding")
+                .setSecureRandomAlgorithm("SHA1PRNG")
+                .setSecretKeyType("PBKDF2WithHmacSHA1")
+                .setIv(yourByteIvArrayWith16Items)
+                .build();
+```
+3º Encrypt your text
+```
+String encrypted = encryption.encryptOrNull("Text to be encrypt");
+```
+
+4º Decrypt your text
+```
+String decrypted = encryption.decryptOrNull(encrypted);
+```
+
+#FAQ#
+
+ - What is Encryption library?
+	 - Encryption library is an Open Source library to help encryption routines in Android applications, our target is to be simple and secure.
+ - What is the "IV", what should be my `yourByteIvArrayWith16Items`
+	 - Encryption 1.2+ uses by default the AES algorithm in CBC mode, so to encrypt and decrypt works you should have the same key and the same IV byte array to encrypt and to decrypt. An example of IV is `byte[] iv = {-89, -19, 17, -83, 86, 106, -31, 30, -5, -111, 61, -75, -84, 95, 120, -53};` like you can see, 16 bytes in a byte array. So if you want to use this library I recommend you create you own IV and save it :floppy_disk:.
+ - I Don't like null returns when errors occurs, what to do to handle errors? 
+	 - You have the power to handle the exceptions, instead of uses `encryptOrNull` method just uses the `encrypt` method. The same for the `decryptOrNull`, just uses the `decrypt` method.
+ - I'm getting problems with main thread, what to do? 
+	 - Encrypt routines can take time, so you can uses the `encryptAsync` with a `Encryption.Callback`to avoid ANR'S. The same for `decryptAsync`
+ - I'm an older user, version 1.1 or less, what to do to update Encrypt to version 1.2+?
+	 - The library has several changes in his structure in version 1.2, both in algorithm and in code usage, so if you are an older user you need migrate the encrypted stuff or configure the `Builder` manually to the same parameters used in version 1.1 and olds.
+
+
+##Want to contribute?##
+Fell free to contribute, We really like pull requests :octocat:
 
 ##License##
 GNU Lesser General Public License at version 3
-
-##Developed By##
-* Simbio.se <http://simbio.se/>
-* Ademar Oliveira - <ademar111190@gmail.com>
 
