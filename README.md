@@ -12,7 +12,7 @@ compile 'se.simbio.encryption:library:1.2.0'
 ```
 2º a) Get an Encryption instance
 ```
-Encryption encryption = Encryption.getDefault("YourKey", "YourSalt", yourByteIvArrayWith16Items);
+Encryption encryption = Encryption.getDefault("YourKey", "YourSalt", yourByteIvArray);
 ```
 2º b) Or build a new Encryption instance
 ```
@@ -27,7 +27,7 @@ Encryption encryption = new Encryption.Builder()
                 .setAlgorithm("AES/CBC/PKCS5Padding")
                 .setSecureRandomAlgorithm("SHA1PRNG")
                 .setSecretKeyType("PBKDF2WithHmacSHA1")
-                .setIv(yourByteIvArrayWith16Items)
+                .setIv(yourByteIvArray)
                 .build();
 ```
 3º Encrypt your text
@@ -44,7 +44,7 @@ String decrypted = encryption.decryptOrNull(encrypted);
 
  - What is Encryption library?
 	 - Encryption library is an Open Source library to help encryption routines in Android applications, our target is to be simple and secure.
- - What is the "IV", what should be my `yourByteIvArrayWith16Items`
+ - What is the "IV", what should be my `yourByteIvArray`
 	 - Encryption 1.2+ uses by default the AES algorithm in CBC mode, so to encrypt and decrypt works you should have the same key and the same IV byte array to encrypt and to decrypt. An example of IV is `byte[] iv = {-89, -19, 17, -83, 86, 106, -31, 30, -5, -111, 61, -75, -84, 95, 120, -53};` like you can see, 16 bytes in a byte array. So if you want to use this library I recommend you create you own IV and save it :floppy_disk:.
  - I Don't like null returns when errors occurs, what to do to handle errors? 
 	 - You have the power to handle the exceptions, instead of uses `encryptOrNull` method just uses the `encrypt` method. The same for the `decryptOrNull`, just uses the `decrypt` method.
