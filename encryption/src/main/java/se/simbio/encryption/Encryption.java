@@ -13,18 +13,23 @@
  */
 package se.simbio.encryption;
 
-import android.R.string;
+import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -32,83 +37,229 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * A class to make more easy simple encrypt routines
+ * A class to make more easy and simple the encrypt routines, this is the core of Encryption library
  */
 public class Encryption {
 
+    /**
+     * We use this tag to log errors on LogCat, never the password or sensible data
+     */
     private static final String TAG = "Encryption";
 
     /**
-     * The Builder used too create the Encryption instance
+     * The Builder used to create the Encryption instance and that contains the information about
+     * encryption specifications, this instance need to be private and careful managed
      */
-    private Builder mBuilder;
+    private final Builder mBuilder;
 
     /**
-     * The private constructor, you should use the builder or get the default
+     * The private and unique constructor, you should use the Encryption.Builder to build your own
+     * instance or get the default proving just the sensible information about encryption
      */
     private Encryption(Builder builder) {
         mBuilder = builder;
     }
 
     /**
-     * This method create a default Encryption instance, please consider make your own instance specially with your own IV or uses the getSecureDefault
-     *
-     * @return an default encryption instance, or <code>null</code> if occur some Exception
+     * @return an default encryption instance or {@code null} if occur some Exception, you can
+     * create yur own Encryption instance using the Encryption.Builder
      */
-    public static Encryption getDefault() {
-        return Builder.getDefaultBuilder().build();
-    }
-
-    /**
-     * @return an default encryption instance with your own iv, or <code>null</code> if occur some Exception
-     */
-    public static Encryption getSecureDefault(byte[] iv) {
-        return Encryption.Builder.getDefaultBuilder().setIv(iv).build();
-    }
-
-    /**
-     * Encrypt a {@link string}
-     *
-     * @param key  the {@link String} key
-     * @param data the {@link String} to be encrypted
-     *
-     * @return the encrypted {@link String} or <code>null</code> if occur some error
-     */
-    public String encrypt(String key, String data) {
-        if (key == null || data == null) return null;
+    public static Encryption getDefault(String key, String salt, byte[] iv) {
         try {
-            SecretKey secretKey = getSecretKey(hashTheKey(key));
-            byte[] dataBytes = data.getBytes(mBuilder.getCharsetName());
-            Cipher cipher = Cipher.getInstance(mBuilder.getAlgorithm());
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, mBuilder.getIvParameterSpec(), mBuilder.getSecureRandom());
-            return Base64.encodeToString(cipher.doFinal(dataBytes), mBuilder.getBase64Mode());
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
+            return Builder.getDefaultBuilder(key, salt, iv).build();
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, e.getMessage(), e);
             return null;
         }
     }
 
     /**
-     * Decrypt a {@link string}
+     * Encrypt a String
      *
-     * @param key  the {@link String} key
-     * @param data the {@link String} to be decrypted
+     * @param data the String to be encrypted
      *
-     * @return the decrypted {@link String} or <code>null</code> if occur some error
+     * @return the encrypted String or {@code null} if you send the data as {@code null}
+     *
+     * @throws UnsupportedEncodingException       if the Builder charset name is not supported or if
+     *                                            the Builder charset name is not supported
+     * @throws NoSuchAlgorithmException           if the Builder digest algorithm is not available
+     *                                            or if this has no installed provider that can
+     *                                            provide the requested by the Builder secret key
+     *                                            type or it is {@code null}, empty or in an invalid
+     *                                            format
+     * @throws NoSuchPaddingException             if no installed provider can provide the padding
+     *                                            scheme in the Builder digest algorithm
+     * @throws InvalidAlgorithmParameterException if the specified parameters are inappropriate for
+     *                                            the cipher
+     * @throws InvalidKeyException                if the specified key can not be used to initialize
+     *                                            the cipher instance
+     * @throws InvalidKeySpecException            if the specified key specification cannot be used
+     *                                            to generate a secret key
+     * @throws BadPaddingException                if the padding of the data does not match the
+     *                                            padding scheme
+     * @throws IllegalBlockSizeException          if the size of the resulting bytes is not a
+     *                                            multiple of the cipher block size
+     * @throws NullPointerException               if the Builder digest algorithm is {@code null} or
+     *                                            if the specified Builder secret key type is
+     *                                            {@code null}
+     * @throws IllegalStateException              if the cipher instance is not initialized for
+     *                                            encryption or decryption
      */
-    public String decrypt(String key, String data) {
-        if (key == null || data == null) return null;
+    public String encrypt(String data) throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, InvalidKeySpecException, BadPaddingException, IllegalBlockSizeException {
+        if (data == null) return null;
+        SecretKey secretKey = getSecretKey(hashTheKey(mBuilder.getKey()));
+        byte[] dataBytes = data.getBytes(mBuilder.getCharsetName());
+        Cipher cipher = Cipher.getInstance(mBuilder.getAlgorithm());
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, mBuilder.getIvParameterSpec(), mBuilder.getSecureRandom());
+        return Base64.encodeToString(cipher.doFinal(dataBytes), mBuilder.getBase64Mode());
+    }
+
+    /**
+     * This is a sugar method that calls encrypt method and catch the exceptions returning
+     * {@code null} when it occurs and logging the error
+     *
+     * @param data the String to be encrypted
+     *
+     * @return the encrypted String or {@code null} if you send the data as {@code null}
+     */
+    public String encryptOrNull(String data) {
         try {
-            byte[] dataBytes = Base64.decode(data, mBuilder.getBase64Mode());
-            SecretKey secretKey = getSecretKey(hashTheKey(key));
-            Cipher cipher = Cipher.getInstance(mBuilder.getAlgorithm());
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, mBuilder.getIvParameterSpec(), mBuilder.getSecureRandom());
-            byte[] dataBytesDecrypted = (cipher.doFinal(dataBytes));
-            return new String(dataBytesDecrypted);
+            return encrypt(data);
         } catch (Exception e) {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, e.getMessage(), e);
             return null;
         }
+    }
+
+    /**
+     * This is a sugar method that calls encrypt method in background, it is a good idea to use this
+     * one instead the default method because encryption can take several time and with this method
+     * the process occurs in a AsyncTask, other advantage is the Callback with separated methods,
+     * one for success and other for the exception
+     *
+     * @param data     the String to be encrypted
+     * @param callback the Callback to handle the results
+     */
+    public void encryptAsync(String data, final Callback callback) {
+        if (callback == null) return;
+        new AsyncTask<String, Void, String>() {
+
+            @Override
+            protected String doInBackground(String... params) {
+                try {
+                    String encrypt = encrypt(params[0]);
+                    if (encrypt == null) {
+                        callback.onError(new Exception("Encrypt return null, it normally occurs when you send a null data"));
+                    }
+                    return encrypt;
+                } catch (Exception e) {
+                    callback.onError(e);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(String result) {
+                super.onPostExecute(result);
+                if (result != null) callback.onSuccess(result);
+            }
+
+        }.execute(data);
+    }
+
+    /**
+     * Decrypt a String
+     *
+     * @param data the String to be decrypted
+     *
+     * @return the decrypted String or {@code null} if you send the data as {@code null}
+     *
+     * @throws UnsupportedEncodingException       if the Builder charset name is not supported or if
+     *                                            the Builder charset name is not supported
+     * @throws NoSuchAlgorithmException           if the Builder digest algorithm is not available
+     *                                            or if this has no installed provider that can
+     *                                            provide the requested by the Builder secret key
+     *                                            type or it is {@code null}, empty or in an invalid
+     *                                            format
+     * @throws NoSuchPaddingException             if no installed provider can provide the padding
+     *                                            scheme in the Builder digest algorithm
+     * @throws InvalidAlgorithmParameterException if the specified parameters are inappropriate for
+     *                                            the cipher
+     * @throws InvalidKeyException                if the specified key can not be used to initialize
+     *                                            the cipher instance
+     * @throws InvalidKeySpecException            if the specified key specification cannot be used
+     *                                            to generate a secret key
+     * @throws BadPaddingException                if the padding of the data does not match the
+     *                                            padding scheme
+     * @throws IllegalBlockSizeException          if the size of the resulting bytes is not a
+     *                                            multiple of the cipher block size
+     * @throws NullPointerException               if the Builder digest algorithm is {@code null} or
+     *                                            if the specified Builder secret key type is
+     *                                            {@code null}
+     * @throws IllegalStateException              if the cipher instance is not initialized for
+     *                                            encryption or decryption
+     */
+    public String decrypt(String data) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        if (data == null) return null;
+        byte[] dataBytes = Base64.decode(data, mBuilder.getBase64Mode());
+        SecretKey secretKey = getSecretKey(hashTheKey(mBuilder.getKey()));
+        Cipher cipher = Cipher.getInstance(mBuilder.getAlgorithm());
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, mBuilder.getIvParameterSpec(), mBuilder.getSecureRandom());
+        byte[] dataBytesDecrypted = (cipher.doFinal(dataBytes));
+        return new String(dataBytesDecrypted);
+    }
+
+    /**
+     * This is a sugar method that calls decrypt method and catch the exceptions returning
+     * {@code null} when it occurs and logging the error
+     *
+     * @param data the String to be decrypted
+     *
+     * @return the decrypted String or {@code null} if you send the data as {@code null}
+     */
+    public String decryptOrNull(String data) {
+        try {
+            return decrypt(data);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * This is a sugar method that calls decrypt method in background, it is a good idea to use this
+     * one instead the default method because decryption can take several time and with this method
+     * the process occurs in a AsyncTask, other advantage is the Callback with separated methods,
+     * one for success and other for the exception
+     *
+     * @param data     the String to be decrypted
+     * @param callback the Callback to handle the results
+     */
+    public void decryptAsync(String data, final Callback callback) {
+        if (callback == null) return;
+        new AsyncTask<String, Void, String>() {
+
+            @Override
+            protected String doInBackground(String... params) {
+                try {
+                    String decrypt = decrypt(params[0]);
+                    if (decrypt == null) {
+                        callback.onError(new Exception("Decrypt return null, it normally occurs when you send a null data"));
+                    }
+                    return decrypt;
+                } catch (Exception e) {
+                    callback.onError(e);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(String result) {
+                super.onPostExecute(result);
+                if (result != null) callback.onSuccess(result);
+            }
+
+        }.execute(data);
     }
 
     /**
@@ -118,9 +269,12 @@ public class Encryption {
      *
      * @return aes 128 bit salted key
      *
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException
-     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException     if no installed provider that can provide the requested
+     *                                      by the Builder secret key type
+     * @throws UnsupportedEncodingException if the Builder charset name is not supported
+     * @throws InvalidKeySpecException      if the specified key specification cannot be used to
+     *                                      generate a secret key
+     * @throws NullPointerException         if the specified Builder secret key type is {@code null}
      */
     private SecretKey getSecretKey(char[] key) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeySpecException {
         SecretKeyFactory factory = SecretKeyFactory.getInstance(mBuilder.getSecretKeyType());
@@ -138,8 +292,9 @@ public class Encryption {
      *
      * @return sha1 base64 encoded representation
      *
-     * @throws UnsupportedEncodingException
-     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException if the Builder charset name is not supported
+     * @throws NoSuchAlgorithmException     if the Builder digest algorithm is not available
+     * @throws NullPointerException         if the Builder digest algorithm is {@code null}
      */
     private char[] hashTheKey(String key) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         MessageDigest messageDigest = MessageDigest.getInstance(mBuilder.getDigestAlgorithm());
@@ -148,7 +303,29 @@ public class Encryption {
     }
 
     /**
-     * A class to create an Encryption instance
+     * When you encrypt or decrypt in callback mode you get noticed of result using this interface
+     */
+    public static interface Callback {
+
+        /**
+         * Called when encrypt or decrypt job ends and the process was a success
+         *
+         * @param result the encrypted or decrypted String
+         */
+        public void onSuccess(String result);
+
+        /**
+         * Called when encrypt or decrypt job ends and has occurred an error in the process
+         *
+         * @param exception the Exception related to the error
+         */
+        public void onError(Exception exception);
+
+    }
+
+    /**
+     * This class is used to create an Encryption instance, you should provide ALL data or start
+     * with the Default Builder provided by the getDefaultBuilder method
      */
     public static class Builder {
 
@@ -157,6 +334,7 @@ public class Encryption {
         private int mBase64Mode;
         private int mIterationCount;
         private String mSalt;
+        private String mKey;
         private String mAlgorithm;
         private String mCharsetName;
         private String mSecretKeyType;
@@ -166,7 +344,7 @@ public class Encryption {
         private IvParameterSpec mIvParameterSpec;
 
         /**
-         * @return an default builder with an IV of 16 zeros, you should uses your own secret IV,
+         * @return an default builder with the follow defaults:
          * the default char set is UTF-8
          * the default base mode is Base64
          * the Secret Key Type is the PBKDF2WithHmacSHA1
@@ -177,29 +355,34 @@ public class Encryption {
          * the default secure random algorithm is SHA1PRNG
          * the default message digest algorithm SHA1
          */
-        public static Builder getDefaultBuilder() {
+        public static Builder getDefaultBuilder(String key, String salt, byte[] iv) {
             return new Builder()
+                    .setIv(iv)
+                    .setKey(key)
+                    .setSalt(salt)
                     .setKeyLength(128)
-                    .setIterationCount(65536)
-                    .setSalt("some_salt")
                     .setCharsetName("UTF8")
+                    .setIterationCount(65536)
                     .setDigestAlgorithm("SHA1")
                     .setBase64Mode(Base64.DEFAULT)
                     .setAlgorithm("AES/CBC/PKCS5Padding")
                     .setSecureRandomAlgorithm("SHA1PRNG")
-                    .setSecretKeyType("PBKDF2WithHmacSHA1")
-                    .setIv(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+                    .setSecretKeyType("PBKDF2WithHmacSHA1");
         }
 
-        public Encryption build() {
-            try {
-                mSecureRandom = SecureRandom.getInstance(mSecureRandomAlgorithm);
-                mIvParameterSpec = new IvParameterSpec(mIv);
-                return new Encryption(this);
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(TAG, e.getMessage(), e.getCause());
-                return null;
-            }
+        /**
+         * Build the Encryption with the provided information
+         *
+         * @return a new Encryption instance with provided information
+         *
+         * @throws NoSuchAlgorithmException if the specified SecureRandomAlgorithm is not available
+         * @throws NullPointerException     if the SecureRandomAlgorithm is {@code null} or if the
+         *                                  IV byte array is null
+         */
+        public Encryption build() throws NoSuchAlgorithmException {
+            setSecureRandom(SecureRandom.getInstance(getSecureRandomAlgorithm()));
+            setIvParameterSpec(new IvParameterSpec(getIv()));
+            return new Encryption(this);
         }
 
         //region getters and setters
@@ -207,14 +390,14 @@ public class Encryption {
         /**
          * @return the charset name
          */
-        public String getCharsetName() {
+        private String getCharsetName() {
             return mCharsetName;
         }
 
         /**
          * @param charsetName the new charset name
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setCharsetName(String charsetName) {
             mCharsetName = charsetName;
@@ -222,16 +405,16 @@ public class Encryption {
         }
 
         /**
-         * @return the mAlgorithm used
+         * @return the algorithm
          */
-        public String getAlgorithm() {
+        private String getAlgorithm() {
             return mAlgorithm;
         }
 
         /**
-         * @param algorithm the mAlgorithm to be used
+         * @param algorithm the algorithm to be used
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setAlgorithm(String algorithm) {
             mAlgorithm = algorithm;
@@ -241,14 +424,14 @@ public class Encryption {
         /**
          * @return the Base 64 mode
          */
-        public int getBase64Mode() {
+        private int getBase64Mode() {
             return mBase64Mode;
         }
 
         /**
          * @param base64Mode set the base 64 mode
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setBase64Mode(int base64Mode) {
             mBase64Mode = base64Mode;
@@ -256,16 +439,18 @@ public class Encryption {
         }
 
         /**
-         * @return the type of aes key that will be created, on KITKAT+ the API has changed, if you are getting problems please @see <a href="http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html">http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html</a>
+         * @return the type of aes key that will be created, on KITKAT+ the API has changed, if you
+         * are getting problems please @see <a href="http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html">http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html</a>
          */
-        public String getSecretKeyType() {
+        private String getSecretKeyType() {
             return mSecretKeyType;
         }
 
         /**
-         * @param secretKeyType the type of aes key that will be created, on KITKAT+ the API has changed, if you are getting problems please @see <a href="http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html">http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html</a>
+         * @param secretKeyType the type of AES key that will be created, on KITKAT+ the API has
+         *                      changed, if you are getting problems please @see <a href="http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html">http://android-developers.blogspot.com.br/2013/12/changes-to-secretkeyfactory-api-in.html</a>
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setSecretKeyType(String secretKeyType) {
             mSecretKeyType = secretKeyType;
@@ -275,14 +460,14 @@ public class Encryption {
         /**
          * @return the value used for salting
          */
-        public String getSalt() {
+        private String getSalt() {
             return mSalt;
         }
 
         /**
-         * @param salt the value used for salting.
+         * @param salt the value used for salting
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setSalt(String salt) {
             mSalt = salt;
@@ -290,16 +475,33 @@ public class Encryption {
         }
 
         /**
+         * @return the key
+         */
+        private String getKey() {
+            return mKey;
+        }
+
+        /**
+         * @param key the key.
+         *
+         * @return this instance to follow the Builder patter
+         */
+        public Builder setKey(String key) {
+            mKey = key;
+            return this;
+        }
+
+        /**
          * @return the length of key
          */
-        public int getKeyLength() {
+        private int getKeyLength() {
             return mKeyLength;
         }
 
         /**
          * @param keyLength the length of key
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setKeyLength(int keyLength) {
             mKeyLength = keyLength;
@@ -309,14 +511,14 @@ public class Encryption {
         /**
          * @return the number of times the password is hashed
          */
-        public int getIterationCount() {
+        private int getIterationCount() {
             return mIterationCount;
         }
 
         /**
          * @param iterationCount the number of times the password is hashed
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setIterationCount(int iterationCount) {
             mIterationCount = iterationCount;
@@ -326,14 +528,14 @@ public class Encryption {
         /**
          * @return the algorithm used to generate the secure random
          */
-        public String getSecureRandomAlgorithm() {
+        private String getSecureRandomAlgorithm() {
             return mSecureRandomAlgorithm;
         }
 
         /**
          * @param secureRandomAlgorithm the algorithm to generate the secure random
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setSecureRandomAlgorithm(String secureRandomAlgorithm) {
             mSecureRandomAlgorithm = secureRandomAlgorithm;
@@ -343,14 +545,14 @@ public class Encryption {
         /**
          * @return the IvParameterSpec bytes array
          */
-        public byte[] getIv() {
+        private byte[] getIv() {
             return mIv;
         }
 
         /**
          * @param iv the byte array to create a new IvParameterSpec
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setIv(byte[] iv) {
             mIv = iv;
@@ -360,14 +562,14 @@ public class Encryption {
         /**
          * @return the SecureRandom
          */
-        public SecureRandom getSecureRandom() {
+        private SecureRandom getSecureRandom() {
             return mSecureRandom;
         }
 
         /**
          * @param secureRandom the Secure Random
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setSecureRandom(SecureRandom secureRandom) {
             mSecureRandom = secureRandom;
@@ -377,14 +579,14 @@ public class Encryption {
         /**
          * @return the IvParameterSpec
          */
-        public IvParameterSpec getIvParameterSpec() {
+        private IvParameterSpec getIvParameterSpec() {
             return mIvParameterSpec;
         }
 
         /**
          * @param ivParameterSpec the IvParameterSpec
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setIvParameterSpec(IvParameterSpec ivParameterSpec) {
             mIvParameterSpec = ivParameterSpec;
@@ -394,14 +596,14 @@ public class Encryption {
         /**
          * @return the message digest algorithm
          */
-        public String getDigestAlgorithm() {
+        private String getDigestAlgorithm() {
             return mDigestAlgorithm;
         }
 
         /**
          * @param digestAlgorithm the algorithm to be used to get message digest instance
          *
-         * @return this instance
+         * @return this instance to follow the Builder patter
          */
         public Builder setDigestAlgorithm(String digestAlgorithm) {
             mDigestAlgorithm = digestAlgorithm;

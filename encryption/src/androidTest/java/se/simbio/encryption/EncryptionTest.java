@@ -1,36 +1,52 @@
 package se.simbio.encryption;
 
 import android.test.InstrumentationTestCase;
+import android.util.Base64;
 import android.util.Log;
 
-import java.security.SecureRandom;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class EncryptionTest extends InstrumentationTestCase {
 
     private static final String TAG = "EncryptionTest";
 
+    private final CountDownLatch mSignal = new CountDownLatch(1);
+
     public void testNormalCase() {
-        String key = "$3creTQei";
+        Encryption encryption = Encryption.getDefault("JustAKey", "some_salt", new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+        assertNotNull(encryption);
+
         String secretText = "Text to be encrypt";
+        Log.d(TAG, String.format("Text to encrypt: %s", secretText));
 
-        //this is just a test, you should use a secure IV !!!!
-        byte[] iv = {-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7};
-        Encryption encryption = Encryption.getSecureDefault(iv);
+        String encrypted = encryption.encryptOrNull(secretText);
+        Log.d(TAG, String.format("Text encrypted: %s", encrypted));
+        assertNotNull(encrypted);
 
-        String encrypted = encryption.encrypt(key, secretText);
-        String decrypted = encryption.decrypt(key, encrypted);
-
-        Log.d("Encryption", String.format("The text '%s' encrypted with key '%s' is %s", secretText, key, encrypted));
-        Log.d("Encryption", String.format("This is the text '%s' decrypted with key '%s' on %s", decrypted, key, encrypted));
+        String decrypted = encryption.decryptOrNull(encrypted);
+        Log.d(TAG, String.format("Text decrypted: %s", decrypted));
+        assertNotNull(decrypted);
 
         assertEquals(secretText, decrypted);
     }
 
     public void testEncryptionWithRandomText() {
-        Encryption encryption = Encryption.getDefault();
+        String key = "$3creTQei";
+        String salt = "anotherS@lt";
+        byte[] iv = {-21, 58, 41, 124, -17, -19, 47, -35, 115, 120, -41, -7, 127, 103, -91, 8};
+
+        Encryption encryption = Encryption.getDefault(key, salt, iv);
         assertNotNull(encryption);
 
         Random random = new Random();
@@ -42,117 +58,119 @@ public class EncryptionTest extends InstrumentationTestCase {
         } while (textSize > 0);
 
         String textToEncrypt = stringBuilder.toString();
-        String encryptKey = "Some Key";
         Log.d(TAG, String.format("Text to encrypt: %s", textToEncrypt));
 
-        String encryptedText = encryption.encrypt(encryptKey, textToEncrypt);
+        String encryptedText = encryption.encryptOrNull(textToEncrypt);
         Log.d(TAG, String.format("Text encrypted: %s", encryptedText));
         assertNotNull(encryptedText);
 
-        String decryptedText = encryption.decrypt(encryptKey, encryptedText);
+        String decryptedText = encryption.decryptOrNull(encryptedText);
         Log.d(TAG, String.format("Text decrypted: %s", decryptedText));
         assertNotNull(decryptedText);
-        assertEquals(decryptedText, textToEncrypt);
-    }
 
-    public void testEncryptionWithPredeterminedText() {
-        Encryption encryption = Encryption.getDefault();
-        assertNotNull(encryption);
-
-        String textToEncrypt = "Top Secret Text";
-        String encryptKey = "Other Key";
-        Log.d(TAG, String.format("Text to encrypt: %s", textToEncrypt));
-
-        String encryptedText = encryption.encrypt(encryptKey, textToEncrypt);
-        Log.d(TAG, String.format("Text encrypted: %s", encryptedText));
-        assertNotNull(encryptedText);
-
-        String decryptedText = encryption.decrypt(encryptKey, encryptedText);
-        Log.d(TAG, String.format("Text decrypted: %s", decryptedText));
-        assertNotNull(decryptedText);
         assertEquals(decryptedText, textToEncrypt);
     }
 
     public void testEncryptionWithDifferentInstances() {
-        Encryption encryptEncryption = Encryption.getDefault();
+        String key = "yekIsKeyInverted";
+        String salt = "tlAsIsSaltInverted";
+        byte[] iv = {79, 71, 80, 66, 55, -109, 20, 30, -49, 105, 4, 59, 98, -70, -77, -61};
+
+        Encryption encryptEncryption = Encryption.getDefault(key, salt, iv);
         assertNotNull(encryptEncryption);
 
         String textToEncrypt = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.";
-        String encryptKey = "£øЯ€µ%!þZµµ";
         Log.d(TAG, String.format("Text to encrypt: %s", textToEncrypt));
 
-        String encryptedText = encryptEncryption.encrypt(encryptKey, textToEncrypt);
+        String encryptedText = encryptEncryption.encryptOrNull(textToEncrypt);
         Log.d(TAG, String.format("Text encrypted: %s", encryptedText));
         assertNotNull(encryptedText);
 
-        Encryption decryptEncryption = Encryption.getDefault();
+        Encryption decryptEncryption = Encryption.getDefault(key, salt, iv);
         assertNotNull(decryptEncryption);
 
-        String decryptedText = decryptEncryption.decrypt(encryptKey, encryptedText);
+        String decryptedText = decryptEncryption.decryptOrNull(encryptedText);
         Log.d(TAG, String.format("Text decrypted: %s", decryptedText));
         assertNotNull(decryptedText);
+
         assertEquals(decryptedText, textToEncrypt);
     }
 
-    public void testGetterAndSetter() throws Exception {
-        Encryption.Builder builder = Encryption.Builder.getDefaultBuilder();
-        assertNotNull(builder);
+    public void testBackground() throws Throwable {
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final String key = "£øЯ€µ%!þZµµ";
+                final String salt = "background_S_al_t";
+                final byte[] iv = {-89, -19, 17, -83, 86, 106, -31, 30, -5, -111, 61, -75, -84, 95, 120, -53};
 
-        String charsetName = "charsetName";
-        builder.setCharsetName(charsetName);
-        assertEquals(charsetName, builder.getCharsetName());
+                Encryption encryptEncryption = Encryption.getDefault(key, salt, iv);
+                assertNotNull(encryptEncryption);
 
-        String algorithm = "algorithm";
-        builder.setAlgorithm(algorithm);
-        assertEquals(algorithm, builder.getAlgorithm());
+                final String textToEncrypt = "Just a text that will be encrypted in background.";
+                Log.d(TAG, String.format("Text to encrypt in background: %s", textToEncrypt));
 
-        int base64Mode = (int) (Math.random() * Integer.MAX_VALUE);
-        builder.setBase64Mode(base64Mode);
-        assertEquals(base64Mode, builder.getBase64Mode());
+                encryptEncryption.encryptAsync(textToEncrypt, new Encryption.Callback() {
+                    @Override
+                    public void onSuccess(String encryptedText) {
+                        Log.d(TAG, String.format("Text encrypted in background: %s", encryptedText));
 
-        String secretKeyType = "secretKeyType";
-        builder.setSecretKeyType(secretKeyType);
-        assertEquals(secretKeyType, builder.getSecretKeyType());
+                        Encryption decryptEncryption = Encryption.getDefault(key, salt, iv);
+                        assertNotNull(decryptEncryption);
 
-        String salt = "salt";
-        builder.setSalt(salt);
-        assertEquals(salt, builder.getSalt());
+                        decryptEncryption.decryptAsync(encryptedText, new Encryption.Callback() {
+                            @Override
+                            public void onSuccess(String decryptedText) {
+                                Log.d(TAG, String.format("Text decrypted in background: %s", decryptedText));
+                                assertEquals(decryptedText, textToEncrypt);
+                                mSignal.countDown();
+                            }
 
-        int keyLength = (int) (Math.random() * Integer.MAX_VALUE);
-        builder.setKeyLength(keyLength);
-        assertEquals(keyLength, builder.getKeyLength());
+                            @Override
+                            public void onError(Exception exception) {
+                                fail(String.format("fail at background decrypt: %s", exception.getMessage()));
+                            }
+                        });
+                    }
 
-        int iterationCount = (int) (Math.random() * Integer.MAX_VALUE);
-        builder.setIterationCount(iterationCount);
-        assertEquals(iterationCount, builder.getIterationCount());
+                    @Override
+                    public void onError(Exception exception) {
+                        fail(String.format("fail at background encrypt: %s", exception.getMessage()));
+                    }
+                });
+            }
+        });
+        mSignal.await(10, TimeUnit.MINUTES);
+    }
 
-        String secureRandomAlgorithm = "secureRandomAlgorithm";
-        builder.setSecureRandomAlgorithm(secureRandomAlgorithm);
-        assertEquals(secureRandomAlgorithm, builder.getSecureRandomAlgorithm());
+    public void testWithoutSugars() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeySpecException {
+        Encryption encryption = new Encryption.Builder()
+                .setKeyLength(128)
+                .setCharsetName("UTF8")
+                .setIterationCount(65536)
+                .setKey("mor€Z€cr€tKYss")
+                .setDigestAlgorithm("SHA1")
+                .setSalt("An beautiful salt")
+                .setBase64Mode(Base64.DEFAULT)
+                .setAlgorithm("AES/CBC/PKCS5Padding")
+                .setSecureRandomAlgorithm("SHA1PRNG")
+                .setSecretKeyType("PBKDF2WithHmacSHA1")
+                .setIv(new byte[] {29, 88, -79, -101, -108, -38, -126, 90, 52, 101, -35, 114, 12, -48, -66, -30})
+                .build();
+        assertNotNull(encryption);
 
-        String digestAlgorithm = "SHA1";
-        builder.setDigestAlgorithm(digestAlgorithm);
-        assertEquals(digestAlgorithm, builder.getDigestAlgorithm());
+        String textToEncrypt = "A text to builder test.";
+        Log.d(TAG, String.format("Text to encrypt: %s", textToEncrypt));
 
-        byte[] iv = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, -1, -2, -3, -4, -5, -6};
-        builder.setIv(iv);
-        assertEquals(iv.length, builder.getIv().length);
-        for (int i = 0; i < iv.length; i++) {
-            assertEquals(iv[i], builder.getIv()[i]);
-        }
+        String encryptedText = encryption.encrypt(textToEncrypt);
+        Log.d(TAG, String.format("Text encrypted: %s", encryptedText));
+        assertNotNull(encryptedText);
 
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-        builder.setIvParameterSpec(ivParameterSpec);
-        assertEquals(ivParameterSpec, builder.getIvParameterSpec());
+        String decryptedText = encryption.decrypt(encryptedText);
+        Log.d(TAG, String.format("Text decrypted: %s", decryptedText));
+        assertNotNull(decryptedText);
 
-        builder.setSecureRandomAlgorithm("SHA1PRNG");
-        SecureRandom secureRandom = builder.getSecureRandom();
-        assertNull(secureRandom);
-        builder.build();
-        secureRandom = builder.getSecureRandom();
-        assertNotNull(secureRandom);
-        builder.setSecureRandom(secureRandom);
-        assertEquals(secureRandom, builder.getSecureRandom());
+        assertEquals(decryptedText, textToEncrypt);
     }
 
 }
