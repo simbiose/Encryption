@@ -18,16 +18,16 @@ Encryption encryption = Encryption.getDefault("YourKey", "YourSalt", yourByteIvA
 ```
 Encryption encryption = new Encryption.Builder()
                 .setKeyLength(128)
+                .setKey("YourKey")
+                .setSalt("YourSalt")
+                .setIv(yourByteIvArray)
                 .setCharsetName("UTF8")
                 .setIterationCount(65536)
-                .setKey("YourKey")
                 .setDigestAlgorithm("SHA1")
-                .setSalt("YourSalt")
                 .setBase64Mode(Base64.DEFAULT)
                 .setAlgorithm("AES/CBC/PKCS5Padding")
                 .setSecureRandomAlgorithm("SHA1PRNG")
                 .setSecretKeyType("PBKDF2WithHmacSHA1")
-                .setIv(yourByteIvArray)
                 .build();
 ```
 3º Encrypt your text
