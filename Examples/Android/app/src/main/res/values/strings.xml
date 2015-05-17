@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Encryption example</string>
+
+    <string name="usage_normal">See the normal usage</string>
+    <string name="usage_customized">See the customized usage</string>
+    <string name="usage_async">See the async usage</string>
+</resources>
