@@ -5,3 +5,4 @@ local.properties
 *.iml
 build/
 .navigation/
+out/
