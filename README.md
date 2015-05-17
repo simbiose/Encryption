@@ -5,7 +5,12 @@ Encryption is a simple way to create encrypted strings to Android project.
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-encryption-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/935)
 
+#Java Users#
+
+I'm working at new version "1.3.0" and it will works both in Android and Java
+
 #How to use#
+
 1º Add the gradle dependency
 ```
 compile 'se.simbio.encryption:library:1.2.0'
