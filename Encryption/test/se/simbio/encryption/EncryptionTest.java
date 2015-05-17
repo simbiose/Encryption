@@ -1,8 +1,19 @@
+/**
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.simbio.encryption;
 
-import android.test.InstrumentationTestCase;
-import android.util.Base64;
-import android.util.Log;
+import junit.framework.TestCase;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -17,25 +28,35 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-public class EncryptionTest extends InstrumentationTestCase {
+import third.part.android.util.Base64;
 
-    private static final String TAG = "EncryptionTest";
+public class EncryptionTest extends TestCase {
 
     private final CountDownLatch mSignal = new CountDownLatch(1);
+
+    @Override
+    public void setUp() throws Exception {
+        Logger.enableDefaultLog();
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        Logger.disableLog();
+    }
 
     public void testNormalCase() {
         Encryption encryption = Encryption.getDefault("JustAKey", "some_salt", new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
         assertNotNull(encryption);
 
         String secretText = "Text to be encrypt";
-        Log.d(TAG, String.format("Text to encrypt: %s", secretText));
+        Logger.log(String.format("Text to encrypt: %s", secretText));
 
         String encrypted = encryption.encryptOrNull(secretText);
-        Log.d(TAG, String.format("Text encrypted: %s", encrypted));
+        Logger.log(String.format("Text encrypted: %s", encrypted));
         assertNotNull(encrypted);
 
         String decrypted = encryption.decryptOrNull(encrypted);
-        Log.d(TAG, String.format("Text decrypted: %s", decrypted));
+        Logger.log(String.format("Text decrypted: %s", decrypted));
         assertNotNull(decrypted);
 
         assertEquals(secretText, decrypted);
@@ -58,14 +79,14 @@ public class EncryptionTest extends InstrumentationTestCase {
         } while (textSize > 0);
 
         String textToEncrypt = stringBuilder.toString();
-        Log.d(TAG, String.format("Text to encrypt: %s", textToEncrypt));
+        Logger.log(String.format("Text to encrypt: %s", textToEncrypt));
 
         String encryptedText = encryption.encryptOrNull(textToEncrypt);
-        Log.d(TAG, String.format("Text encrypted: %s", encryptedText));
+        Logger.log(String.format("Text encrypted: %s", encryptedText));
         assertNotNull(encryptedText);
 
         String decryptedText = encryption.decryptOrNull(encryptedText);
-        Log.d(TAG, String.format("Text decrypted: %s", decryptedText));
+        Logger.log(String.format("Text decrypted: %s", decryptedText));
         assertNotNull(decryptedText);
 
         assertEquals(decryptedText, textToEncrypt);
@@ -80,64 +101,59 @@ public class EncryptionTest extends InstrumentationTestCase {
         assertNotNull(encryptEncryption);
 
         String textToEncrypt = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.";
-        Log.d(TAG, String.format("Text to encrypt: %s", textToEncrypt));
+        Logger.log(String.format("Text to encrypt: %s", textToEncrypt));
 
         String encryptedText = encryptEncryption.encryptOrNull(textToEncrypt);
-        Log.d(TAG, String.format("Text encrypted: %s", encryptedText));
+        Logger.log(String.format("Text encrypted: %s", encryptedText));
         assertNotNull(encryptedText);
 
         Encryption decryptEncryption = Encryption.getDefault(key, salt, iv);
         assertNotNull(decryptEncryption);
 
         String decryptedText = decryptEncryption.decryptOrNull(encryptedText);
-        Log.d(TAG, String.format("Text decrypted: %s", decryptedText));
+        Logger.log(String.format("Text decrypted: %s", decryptedText));
         assertNotNull(decryptedText);
 
         assertEquals(decryptedText, textToEncrypt);
     }
 
     public void testBackground() throws Throwable {
-        runTestOnUiThread(new Runnable() {
+        final String key = "£øЯ€µ%!þZµµ";
+        final String salt = "background_S_al_t";
+        final byte[] iv = {-89, -19, 17, -83, 86, 106, -31, 30, -5, -111, 61, -75, -84, 95, 120, -53};
+
+        Encryption encryptEncryption = Encryption.getDefault(key, salt, iv);
+        assertNotNull(encryptEncryption);
+
+        final String textToEncrypt = "Just a text that will be encrypted in background.";
+        Logger.log(String.format("Text to encrypt in background: %s", textToEncrypt));
+
+        encryptEncryption.encryptAsync(textToEncrypt, new Encryption.Callback() {
             @Override
-            public void run() {
-                final String key = "£øЯ€µ%!þZµµ";
-                final String salt = "background_S_al_t";
-                final byte[] iv = {-89, -19, 17, -83, 86, 106, -31, 30, -5, -111, 61, -75, -84, 95, 120, -53};
+            public void onSuccess(String encryptedText) {
+                Logger.log(String.format("Text encrypted in background: %s", encryptedText));
 
-                Encryption encryptEncryption = Encryption.getDefault(key, salt, iv);
-                assertNotNull(encryptEncryption);
+                Encryption decryptEncryption = Encryption.getDefault(key, salt, iv);
+                assertNotNull(decryptEncryption);
 
-                final String textToEncrypt = "Just a text that will be encrypted in background.";
-                Log.d(TAG, String.format("Text to encrypt in background: %s", textToEncrypt));
-
-                encryptEncryption.encryptAsync(textToEncrypt, new Encryption.Callback() {
+                decryptEncryption.decryptAsync(encryptedText, new Encryption.Callback() {
                     @Override
-                    public void onSuccess(String encryptedText) {
-                        Log.d(TAG, String.format("Text encrypted in background: %s", encryptedText));
-
-                        Encryption decryptEncryption = Encryption.getDefault(key, salt, iv);
-                        assertNotNull(decryptEncryption);
-
-                        decryptEncryption.decryptAsync(encryptedText, new Encryption.Callback() {
-                            @Override
-                            public void onSuccess(String decryptedText) {
-                                Log.d(TAG, String.format("Text decrypted in background: %s", decryptedText));
-                                assertEquals(decryptedText, textToEncrypt);
-                                mSignal.countDown();
-                            }
-
-                            @Override
-                            public void onError(Exception exception) {
-                                fail(String.format("fail at background decrypt: %s", exception.getMessage()));
-                            }
-                        });
+                    public void onSuccess(String decryptedText) {
+                        Logger.log(String.format("Text decrypted in background: %s", decryptedText));
+                        assertEquals(decryptedText, textToEncrypt);
+                        mSignal.countDown();
                     }
 
                     @Override
                     public void onError(Exception exception) {
-                        fail(String.format("fail at background encrypt: %s", exception.getMessage()));
+                        fail(String.format("fail at background decrypt: %s", exception.getMessage()));
                     }
                 });
+            }
+
+            @Override
+            public void onError(Exception exception) {
+                fail(String.format("fail at background encrypt: %s", exception.getMessage()));
             }
         });
         mSignal.await(10, TimeUnit.MINUTES);
@@ -146,6 +162,7 @@ public class EncryptionTest extends InstrumentationTestCase {
     public void testWithoutSugars() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeySpecException {
         Encryption encryption = new Encryption.Builder()
                 .setKeyLength(128)
+                .setKeyAlgorithm("AES")
                 .setCharsetName("UTF8")
                 .setIterationCount(65536)
                 .setKey("mor€Z€cr€tKYss")
@@ -160,14 +177,14 @@ public class EncryptionTest extends InstrumentationTestCase {
         assertNotNull(encryption);
 
         String textToEncrypt = "A text to builder test.";
-        Log.d(TAG, String.format("Text to encrypt: %s", textToEncrypt));
+        Logger.log(String.format("Text to encrypt: %s", textToEncrypt));
 
         String encryptedText = encryption.encrypt(textToEncrypt);
-        Log.d(TAG, String.format("Text encrypted: %s", encryptedText));
+        Logger.log(String.format("Text encrypted: %s", encryptedText));
         assertNotNull(encryptedText);
 
         String decryptedText = encryption.decrypt(encryptedText);
-        Log.d(TAG, String.format("Text decrypted: %s", decryptedText));
+        Logger.log(String.format("Text decrypted: %s", decryptedText));
         assertNotNull(decryptedText);
 
         assertEquals(decryptedText, textToEncrypt);

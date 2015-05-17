@@ -13,10 +13,6 @@
  */
 package se.simbio.encryption;
 
-import android.os.AsyncTask;
-import android.util.Base64;
-import android.util.Log;
-
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -36,15 +32,12 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import third.part.android.util.Base64;
+
 /**
  * A class to make more easy and simple the encrypt routines, this is the core of Encryption library
  */
 public class Encryption {
-
-    /**
-     * We use this tag to log errors on LogCat, never the password or sensible data
-     */
-    private static final String TAG = "Encryption";
 
     /**
      * The Builder used to create the Encryption instance and that contains the information about
@@ -68,7 +61,7 @@ public class Encryption {
         try {
             return Builder.getDefaultBuilder(key, salt, iv).build();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, e.getMessage(), e);
+            Logger.log(e.getMessage(), e);
             return null;
         }
     }
@@ -126,7 +119,7 @@ public class Encryption {
         try {
             return encrypt(data);
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
+            Logger.log(e.getMessage(), e);
             return null;
         }
     }
@@ -140,31 +133,22 @@ public class Encryption {
      * @param data     the String to be encrypted
      * @param callback the Callback to handle the results
      */
-    public void encryptAsync(String data, final Callback callback) {
+    public void encryptAsync(final String data, final Callback callback) {
         if (callback == null) return;
-        new AsyncTask<String, Void, String>() {
-
+        new Thread(new Runnable() {
             @Override
-            protected String doInBackground(String... params) {
+            public void run() {
                 try {
-                    String encrypt = encrypt(params[0]);
+                    String encrypt = encrypt(data);
                     if (encrypt == null) {
                         callback.onError(new Exception("Encrypt return null, it normally occurs when you send a null data"));
                     }
-                    return encrypt;
+                    callback.onSuccess(encrypt);
                 } catch (Exception e) {
                     callback.onError(e);
-                    return null;
                 }
             }
-
-            @Override
-            protected void onPostExecute(String result) {
-                super.onPostExecute(result);
-                if (result != null) callback.onSuccess(result);
-            }
-
-        }.execute(data);
+        }).start();
     }
 
     /**
@@ -221,7 +205,7 @@ public class Encryption {
         try {
             return decrypt(data);
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
+            Logger.log(e.getMessage(), e);
             return null;
         }
     }
@@ -235,31 +219,22 @@ public class Encryption {
      * @param data     the String to be decrypted
      * @param callback the Callback to handle the results
      */
-    public void decryptAsync(String data, final Callback callback) {
+    public void decryptAsync(final String data, final Callback callback) {
         if (callback == null) return;
-        new AsyncTask<String, Void, String>() {
-
+        new Thread(new Runnable() {
             @Override
-            protected String doInBackground(String... params) {
+            public void run() {
                 try {
-                    String decrypt = decrypt(params[0]);
+                    String decrypt = decrypt(data);
                     if (decrypt == null) {
                         callback.onError(new Exception("Decrypt return null, it normally occurs when you send a null data"));
                     }
-                    return decrypt;
+                    callback.onSuccess(decrypt);
                 } catch (Exception e) {
                     callback.onError(e);
-                    return null;
                 }
             }
-
-            @Override
-            protected void onPostExecute(String result) {
-                super.onPostExecute(result);
-                if (result != null) callback.onSuccess(result);
-            }
-
-        }.execute(data);
+        }).start();
     }
 
     /**
@@ -280,7 +255,7 @@ public class Encryption {
         SecretKeyFactory factory = SecretKeyFactory.getInstance(mBuilder.getSecretKeyType());
         KeySpec spec = new PBEKeySpec(key, mBuilder.getSalt().getBytes(mBuilder.getCharsetName()), mBuilder.getIterationCount(), mBuilder.getKeyLength());
         SecretKey tmp = factory.generateSecret(spec);
-        return new SecretKeySpec(tmp.getEncoded(), mBuilder.getAlgorithm());
+        return new SecretKeySpec(tmp.getEncoded(), mBuilder.getKeyAlgorithm());
     }
 
     /**
@@ -305,21 +280,21 @@ public class Encryption {
     /**
      * When you encrypt or decrypt in callback mode you get noticed of result using this interface
      */
-    public static interface Callback {
+    public interface Callback {
 
         /**
          * Called when encrypt or decrypt job ends and the process was a success
          *
          * @param result the encrypted or decrypted String
          */
-        public void onSuccess(String result);
+        void onSuccess(String result);
 
         /**
          * Called when encrypt or decrypt job ends and has occurred an error in the process
          *
          * @param exception the Exception related to the error
          */
-        public void onError(Exception exception);
+        void onError(Exception exception);
 
     }
 
@@ -336,6 +311,7 @@ public class Encryption {
         private String mSalt;
         private String mKey;
         private String mAlgorithm;
+        private String mKeyAlgorithm;
         private String mCharsetName;
         private String mSecretKeyType;
         private String mDigestAlgorithm;
@@ -361,6 +337,7 @@ public class Encryption {
                     .setKey(key)
                     .setSalt(salt)
                     .setKeyLength(128)
+                    .setKeyAlgorithm("AES")
                     .setCharsetName("UTF8")
                     .setIterationCount(65536)
                     .setDigestAlgorithm("SHA1")
@@ -418,6 +395,23 @@ public class Encryption {
          */
         public Builder setAlgorithm(String algorithm) {
             mAlgorithm = algorithm;
+            return this;
+        }
+
+        /**
+         * @return the key algorithm
+         */
+        private String getKeyAlgorithm() {
+            return mKeyAlgorithm;
+        }
+
+        /**
+         * @param keyAlgorithm the keyAlgorithm to be used in keys
+         *
+         * @return this instance to follow the Builder patter
+         */
+        public Builder setKeyAlgorithm(String keyAlgorithm) {
+            mKeyAlgorithm = keyAlgorithm;
             return this;
         }
 
