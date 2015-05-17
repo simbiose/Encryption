@@ -55,8 +55,15 @@ String decrypted = encryption.decryptOrNull(encrypted);
 
 
 ##Want to contribute?##
+
 Fell free to contribute, We really like pull requests :octocat:
 
 ##License##
+
 GNU Lesser General Public License at version 3
 
+
+###Third part###
+
+- Copyright (C) 2010 The Android Open Source Project, applied to:
+	- Base64 (third.part.android.util.Base64) original comes from [here](https://github.com/android/platform_frameworks_base/blob/ab69e29c1927bdc6143324eba5ccd78f7c43128d/core/java/android/util/Base64.java)
