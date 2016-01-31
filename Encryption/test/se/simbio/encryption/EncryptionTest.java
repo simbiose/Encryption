@@ -45,7 +45,7 @@ public class EncryptionTest extends TestCase {
     }
 
     public void testNormalCase() {
-        Encryption encryption = Encryption.getDefault("JustAKey", "some_salt", new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+        Encryption encryption = Encryption.getDefault("JustAKey", "some_salt", new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
         assertNotNull(encryption);
 
         String secretText = "Text to be encrypt";
@@ -65,7 +65,7 @@ public class EncryptionTest extends TestCase {
     public void testEncryptionWithRandomText() {
         String key = "$3creTQei";
         String salt = "anotherS@lt";
-        byte[] iv = {-21, 58, 41, 124, -17, -19, 47, -35, 115, 120, -41, -7, 127, 103, -91, 8};
+        byte[] iv = { -21, 58, 41, 124, -17, -19, 47, -35, 115, 120, -41, -7, 127, 103, -91, 8 };
 
         Encryption encryption = Encryption.getDefault(key, salt, iv);
         assertNotNull(encryption);
@@ -95,7 +95,7 @@ public class EncryptionTest extends TestCase {
     public void testEncryptionWithDifferentInstances() {
         String key = "yekIsKeyInverted";
         String salt = "tlAsIsSaltInverted";
-        byte[] iv = {79, 71, 80, 66, 55, -109, 20, 30, -49, 105, 4, 59, 98, -70, -77, -61};
+        byte[] iv = { 79, 71, 80, 66, 55, -109, 20, 30, -49, 105, 4, 59, 98, -70, -77, -61 };
 
         Encryption encryptEncryption = Encryption.getDefault(key, salt, iv);
         assertNotNull(encryptEncryption);
@@ -120,7 +120,7 @@ public class EncryptionTest extends TestCase {
     public void testBackground() throws Throwable {
         final String key = "£øЯ€µ%!þZµµ";
         final String salt = "background_S_al_t";
-        final byte[] iv = {-89, -19, 17, -83, 86, 106, -31, 30, -5, -111, 61, -75, -84, 95, 120, -53};
+        final byte[] iv = { -89, -19, 17, -83, 86, 106, -31, 30, -5, -111, 61, -75, -84, 95, 120, -53 };
 
         Encryption encryptEncryption = Encryption.getDefault(key, salt, iv);
         assertNotNull(encryptEncryption);
@@ -172,7 +172,7 @@ public class EncryptionTest extends TestCase {
                 .setAlgorithm("AES/CBC/PKCS5Padding")
                 .setSecureRandomAlgorithm("SHA1PRNG")
                 .setSecretKeyType("PBKDF2WithHmacSHA1")
-                .setIv(new byte[] {29, 88, -79, -101, -108, -38, -126, 90, 52, 101, -35, 114, 12, -48, -66, -30})
+                .setIv(new byte[] { 29, 88, -79, -101, -108, -38, -126, 90, 52, 101, -35, 114, 12, -48, -66, -30 })
                 .build();
         assertNotNull(encryption);
 
