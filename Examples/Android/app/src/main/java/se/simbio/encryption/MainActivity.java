@@ -2,6 +2,7 @@ package se.simbio.encryption;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -13,7 +14,6 @@ import third.part.android.util.Base64;
 /**
  * each click listener is an example of Encryption
  */
-
 public class MainActivity extends Activity {
 
     private static final String TAG = "Encryption";
@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mTextView = (TextView) findViewById(R.id.log_textView);
+        mTextView.setMovementMethod(new ScrollingMovementMethod());
         interceptLog();
 
         // the Normal Usage
@@ -86,7 +87,7 @@ public class MainActivity extends Activity {
                             .setAlgorithm("AES/CBC/PKCS5Padding")
                             .setSecureRandomAlgorithm("SHA1PRNG")
                             .setSecretKeyType("PBKDF2WithHmacSHA1")
-                            .setIv(new byte[] {29, 88, -79, -101, -108, -38, -126, 90, 52, 101, -35, 114, 12, -48, -66, -30})
+                            .setIv(new byte[] { 29, 88, -79, -101, -108, -38, -126, 90, 52, 101, -35, 114, 12, -48, -66, -30 })
                             .build();
                 } catch (NoSuchAlgorithmException e) {
                     log("Something wrong: " + e);
