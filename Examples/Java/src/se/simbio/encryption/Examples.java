@@ -7,12 +7,12 @@ import third.part.android.util.Base64;
 /**
  * each method is an example of Encryption
  */
-public class Examples {
+final class Examples {
 
     /**
      * The Encryption library is easy to use
      */
-    public void normalUsage() {
+    void normalUsage() {
         System.out.println("---- Normal Usage ---------------------------------------------------");
         // it is how to get the Encryption instance. You should use your own key your own salt and your own byte array
         Encryption encryption = Encryption.getDefault("SomeKey", "SomeSalt", new byte[16]);
@@ -35,7 +35,7 @@ public class Examples {
         System.out.println("And finally this is our decrypted text: " + decrypted);
     }
 
-    public void customizedUsage() {
+    void customizedUsage() {
         System.out.println("---- Customized Usage -----------------------------------------------");
         // if you want to change Encryption behavior, maybe to reduce the Iteration Count to get a
         // better performance or also change the Algorithm to a customizable one. You can do this
@@ -73,7 +73,7 @@ public class Examples {
         System.out.println("Our encryption instance, can't be null: " + encryption);
     }
 
-    public void asyncUsage() {
+    void asyncUsage() {
         System.out.println("---- Async Usage ----------------------------------------------------");
         // the encryption algorithm can take some time and if you cannot lock the thread and wait
         // maybe use an async approach is a good idea, so you can do this like below:
@@ -103,7 +103,7 @@ public class Examples {
     /**
      * By default Encryption do not log, but you can intercept logs
      */
-    public void interceptLog() {
+    void interceptLog() {
         // you can intercept logs and sed direct to System.out with:
         Logger.enableDefaultLog();
 

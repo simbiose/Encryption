@@ -14,7 +14,7 @@ import third.part.android.util.Base64;
 /**
  * each click listener is an example of Encryption
  */
-public class MainActivity extends Activity {
+public final class MainActivity extends Activity {
 
     private static final String TAG = "Encryption";
 
@@ -133,7 +133,7 @@ public class MainActivity extends Activity {
     /**
      * By default Encryption do not log, but you can intercept logs
      */
-    public void interceptLog() {
+    private void interceptLog() {
         // you can intercept logs and sed direct to System.out with:
         Logger.enableDefaultLog();
 

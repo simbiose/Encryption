@@ -1,6 +1,6 @@
 package se.simbio.encryption;
 
-public class Main {
+final class Main {
 
     public static void main(String[] args) {
         Examples examples = new Examples();
