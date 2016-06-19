@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
                 Encryption encryption = null;
                 try {
                     encryption = Encryption.Builder.getDefaultBuilder("MyKey", "MySalt", new byte[16])
-                            .setIterationCount(1) // use 1 instead the default of 65536 << not recommended :) >>
+                            .setIterationCount(1) // use 1 instead the default of 65536
                             .build();
                 } catch (NoSuchAlgorithmException e) {
                     log("Something wrong: " + e);

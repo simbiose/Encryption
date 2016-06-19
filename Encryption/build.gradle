@@ -22,10 +22,10 @@ sourceSets {
 
 test {
     testLogging {
-        events "started", "passed", "skipped", "failed"
+        events 'started', 'passed', 'skipped', 'failed'
     }
 }
 
 dependencies {
-    testCompile 'junit:junit:4.11'
+    testCompile 'junit:junit:4.12'
 }
