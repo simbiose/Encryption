@@ -19,5 +19,5 @@ sourceSets {
 }
 
 dependencies {
-    compile 'com.github.simbiose:Encryption:36f942b9c2'
+    compile 'com.github.simbiose:Encryption:1.4.0'
 }

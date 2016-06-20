@@ -19,7 +19,7 @@ allprojects {
 
 2º Add the gradle dependency
 ```
-compile 'com.github.simbiose:Encryption:1.3.0'
+compile 'com.github.simbiose:Encryption:1.4.0'
 ```
 
 3º Use Encryption, choose one way below:
