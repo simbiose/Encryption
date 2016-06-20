@@ -35,6 +35,29 @@ final class Examples {
         System.out.println("And finally this is our decrypted text: " + decrypted);
     }
 
+    void lowIteration() {
+        System.out.println("---- Low Iteration Usage --------------------------------------------");
+        // Low iteration is equals the default but faster once it uses only 1 iteration instead of 65536
+        Encryption encryption = Encryption.getLowIteration("SomeKey", "SomeSalt", new byte[16]);
+
+        String secretText = "Low iteration is faster but may you will prefer an async approach with a big iteration count";
+
+        // the method encryptOrNull will encrypt your text and if some error occurs will return null
+        // if you want handle the errors you can call the encrypt method directly
+        String encrypted = encryption.encryptOrNull(secretText);
+
+        // just printing to see the text and the encrypted string
+        System.out.println("This is our secret text: " + secretText);
+        System.out.println("And this is our encrypted text: " + encrypted);
+
+        // now you can send the encrypted text by network or save in disk securely or do wherever
+        // that you want, but remember encrypt is not all, we need decrypt too, so lets go do it
+        String decrypted = encryption.decryptOrNull(encrypted);
+
+        // the decrypted text should be equals the encrypted
+        System.out.println("And finally this is our decrypted text: " + decrypted);
+    }
+
     void customizedUsage() {
         System.out.println("---- Customized Usage -----------------------------------------------");
         // if you want to change Encryption behavior, maybe to reduce the Iteration Count to get a
@@ -63,7 +86,7 @@ final class Examples {
                     .setAlgorithm("AES/CBC/PKCS5Padding")
                     .setSecureRandomAlgorithm("SHA1PRNG")
                     .setSecretKeyType("PBKDF2WithHmacSHA1")
-                    .setIv(new byte[] {29, 88, -79, -101, -108, -38, -126, 90, 52, 101, -35, 114, 12, -48, -66, -30})
+                    .setIv(new byte[] { 29, 88, -79, -101, -108, -38, -126, 90, 52, 101, -35, 114, 12, -48, -66, -30 })
                     .build();
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Something wrong: " + e);

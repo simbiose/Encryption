@@ -1,4 +1,5 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -13,6 +14,13 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="@string/usage_normal"/>
+
+    <Button
+        android:id="@+id/usage_low_iteration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/usage_low_iteration"/>
 
     <Button
         android:id="@+id/usage_customized"

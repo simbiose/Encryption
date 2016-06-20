@@ -6,6 +6,7 @@ final class Main {
         Examples examples = new Examples();
         examples.interceptLog();
         examples.normalUsage();
+        examples.lowIteration();
         examples.customizedUsage();
         examples.asyncUsage();
     }

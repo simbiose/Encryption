@@ -56,6 +56,33 @@ public final class MainActivity extends Activity {
             }
         });
 
+        // the Normal Usage
+        findViewById(R.id.usage_low_iteration).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                log("---- Low Iteration Usage --------------------------------------------");
+                // Low iteration is equals the default but faster once it uses only 1 iteration instead of 65536
+                Encryption encryption = Encryption.getLowIteration("SomeKey", "SomeSalt", new byte[16]);
+
+                String secretText = "Low iteration is faster but may you will prefer an async approach with a big iteration count";
+
+                // the method encryptOrNull will encrypt your text and if some error occurs will return null
+                // if you want handle the errors you can call the encrypt method directly
+                String encrypted = encryption.encryptOrNull(secretText);
+
+                // just printing to see the text and the encrypted string
+                log("This is our secret text: " + secretText);
+                log("And this is our encrypted text: " + encrypted);
+
+                // now you can send the encrypted text by network or save in disk securely or do wherever
+                // that you want, but remember encrypt is not all, we need decrypt too, so lets go do it
+                String decrypted = encryption.decryptOrNull(encrypted);
+
+                // the decrypted text should be equals the encrypted
+                log("And finally this is our decrypted text: " + decrypted);
+            }
+        });
+
         // a Customized Usage
         findViewById(R.id.usage_customized).setOnClickListener(new View.OnClickListener() {
             @Override
