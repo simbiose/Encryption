@@ -67,6 +67,20 @@ public class Encryption {
     }
 
     /**
+     * @return an default encryption instance with iteration count equals to 1 to faster run
+     * purposes or {@code null} if occur some Exception, you can create yur own Encryption instance
+     * using the Encryption.Builder
+     */
+    public static Encryption getLowIteration(String key, String salt, byte[] iv) {
+        try {
+            return Builder.getDefaultBuilder(key, salt, iv).setIterationCount(1).build();
+        } catch (NoSuchAlgorithmException e) {
+            Logger.log(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
      * Encrypt a String
      *
      * @param data the String to be encrypted

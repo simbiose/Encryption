@@ -22,14 +22,19 @@ allprojects {
 compile 'com.github.simbiose:Encryption:1.3.0'
 ```
 
-3º Use Encryption
+3º Use Encryption, choose one way below:
 
-a) Get a default Encryption instance
+3 - a) Get a default Encryption instance
 ```
 Encryption encryption = Encryption.getDefault("YourKey", "YourSalt", yourByteIvArray);
 ```
 
-b) Or build a custom Encryption instance
+3 - b) Get a low iteration Encryption instance. It is similar to previous way, but it is faster once it use only 1 iteration instead of 65536
+```
+Encryption encryption = Encryption.getLowIteration("YourKey", "YourSalt", yourByteIvArray);
+```
+
+3 - c) Build a custom Encryption instance, the power in your hands
 ```
 Encryption encryption = new Encryption.Builder()
                 .setKeyLength(128)

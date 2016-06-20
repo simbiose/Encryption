@@ -62,6 +62,24 @@ public class EncryptionTest extends TestCase {
         assertEquals(secretText, decrypted);
     }
 
+    public void testLowIteration() {
+        Encryption encryption = Encryption.getLowIteration("JustAKey", "great_salt", new byte[] { -7, -6, -5, -4, -3, -2, -1, 0, 0, 1, 2, 3, 4, 5, 6, 7 });
+        assertNotNull(encryption);
+
+        String secretText = "Text to be encrypt";
+        Logger.log(String.format("Text to encrypt: %s", secretText));
+
+        String encrypted = encryption.encryptOrNull(secretText);
+        Logger.log(String.format("Text encrypted: %s", encrypted));
+        assertNotNull(encrypted);
+
+        String decrypted = encryption.decryptOrNull(encrypted);
+        Logger.log(String.format("Text decrypted: %s", decrypted));
+        assertNotNull(decrypted);
+
+        assertEquals(secretText, decrypted);
+    }
+
     public void testEncryptionWithRandomText() {
         String key = "$3creTQei";
         String salt = "anotherS@lt";
