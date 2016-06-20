@@ -1,7 +1,7 @@
 package se.simbio.encryption;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -14,7 +14,7 @@ import third.part.android.util.Base64;
 /**
  * each click listener is an example of Encryption
  */
-public final class MainActivity extends Activity {
+public final class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Encryption";
 
@@ -30,7 +30,9 @@ public final class MainActivity extends Activity {
         interceptLog();
 
         // the Normal Usage
-        findViewById(R.id.usage_normal).setOnClickListener(new View.OnClickListener() {
+        View view = findViewById(R.id.usage_normal);
+        assert view != null;
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log("---- Normal Usage ---------------------------------------------------");
@@ -57,7 +59,9 @@ public final class MainActivity extends Activity {
         });
 
         // the Normal Usage
-        findViewById(R.id.usage_low_iteration).setOnClickListener(new View.OnClickListener() {
+        view = findViewById(R.id.usage_low_iteration);
+        assert view != null;
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log("---- Low Iteration Usage --------------------------------------------");
@@ -84,7 +88,9 @@ public final class MainActivity extends Activity {
         });
 
         // a Customized Usage
-        findViewById(R.id.usage_customized).setOnClickListener(new View.OnClickListener() {
+        view = findViewById(R.id.usage_customized);
+        assert view != null;
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log("---- Customized Usage -----------------------------------------------");
@@ -126,7 +132,9 @@ public final class MainActivity extends Activity {
         });
 
         // an Async Usage
-        findViewById(R.id.usage_async).setOnClickListener(new View.OnClickListener() {
+        view = findViewById(R.id.usage_async);
+        assert view != null;
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log("---- Async Usage ----------------------------------------------------");

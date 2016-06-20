@@ -7,10 +7,12 @@ android {
 
     defaultConfig {
         minSdkVersion 9
+        targetSdkVersion 23
     }
 
 }
 
 dependencies {
+    compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.github.simbiose:Encryption:36f942b9c2'
 }

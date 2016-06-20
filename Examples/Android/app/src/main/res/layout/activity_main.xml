@@ -1,4 +1,4 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,38 +8,55 @@
     android:paddingRight="16dp"
     android:paddingTop="16dp">
 
+    <View
+        android:id="@+id/anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"/>
+
     <Button
         android:id="@+id/usage_normal"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_marginBottom="16dp"
+        android:layout_toLeftOf="@+id/anchor"
         android:text="@string/usage_normal"/>
 
     <Button
         android:id="@+id/usage_low_iteration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
         android:layout_marginBottom="16dp"
+        android:layout_toRightOf="@+id/anchor"
         android:text="@string/usage_low_iteration"/>
 
     <Button
         android:id="@+id/usage_customized"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/usage_normal"
         android:layout_marginBottom="16dp"
+        android:layout_toLeftOf="@+id/anchor"
         android:text="@string/usage_customized"/>
 
     <Button
         android:id="@+id/usage_async"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/usage_low_iteration"
         android:layout_marginBottom="16dp"
+        android:layout_toRightOf="@+id/anchor"
         android:text="@string/usage_async"/>
 
     <TextView
         android:id="@+id/log_textView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/usage_customized"
         android:scrollbars="vertical"/>
 
-</LinearLayout>
+</RelativeLayout>
