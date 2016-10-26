@@ -27,12 +27,9 @@ public final class MainActivity extends AppCompatActivity {
 
         mTextView = (TextView) findViewById(R.id.log_textView);
         mTextView.setMovementMethod(new ScrollingMovementMethod());
-        interceptLog();
 
         // the Normal Usage
-        View view = findViewById(R.id.usage_normal);
-        assert view != null;
-        view.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.usage_normal).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log("---- Normal Usage ---------------------------------------------------");
@@ -58,39 +55,8 @@ public final class MainActivity extends AppCompatActivity {
             }
         });
 
-        // the Normal Usage
-        view = findViewById(R.id.usage_low_iteration);
-        assert view != null;
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                log("---- Low Iteration Usage --------------------------------------------");
-                // Low iteration is equals the default but faster once it uses only 1 iteration instead of 65536
-                Encryption encryption = Encryption.getLowIteration("SomeKey", "SomeSalt", new byte[16]);
-
-                String secretText = "Low iteration is faster but may you will prefer an async approach with a big iteration count";
-
-                // the method encryptOrNull will encrypt your text and if some error occurs will return null
-                // if you want handle the errors you can call the encrypt method directly
-                String encrypted = encryption.encryptOrNull(secretText);
-
-                // just printing to see the text and the encrypted string
-                log("This is our secret text: " + secretText);
-                log("And this is our encrypted text: " + encrypted);
-
-                // now you can send the encrypted text by network or save in disk securely or do wherever
-                // that you want, but remember encrypt is not all, we need decrypt too, so lets go do it
-                String decrypted = encryption.decryptOrNull(encrypted);
-
-                // the decrypted text should be equals the encrypted
-                log("And finally this is our decrypted text: " + decrypted);
-            }
-        });
-
         // a Customized Usage
-        view = findViewById(R.id.usage_customized);
-        assert view != null;
-        view.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.usage_customized).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log("---- Customized Usage -----------------------------------------------");
@@ -132,9 +98,7 @@ public final class MainActivity extends AppCompatActivity {
         });
 
         // an Async Usage
-        view = findViewById(R.id.usage_async);
-        assert view != null;
-        view.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.usage_async).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log("---- Async Usage ----------------------------------------------------");
@@ -161,30 +125,6 @@ public final class MainActivity extends AppCompatActivity {
                 log("A print from original thread");
 
                 // you can do the same thing to decrypt with decryptAsync
-            }
-        });
-    }
-
-    /**
-     * By default Encryption do not log, but you can intercept logs
-     */
-    private void interceptLog() {
-        // you can intercept logs and sed direct to System.out with:
-        Logger.enableDefaultLog();
-
-        // you can turn off the log too, by default the log is off
-        Logger.disableLog();
-
-        // you can also intercept the log and do wherever you want
-        Logger.setLogDelegate(new Logger.EncryptionLogDelegate() {
-            @Override
-            public void log(String message, Exception e) {
-                MainActivity.this.log("this is an exception log: " + message + ", " + e);
-            }
-
-            @Override
-            public void log(String message) {
-                MainActivity.this.log("this is a normal log: " + message);
             }
         });
     }

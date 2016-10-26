@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group 'se.simbio.encryption.java.example'
-version '1.0'
+version '2.0.0'
 
 repositories {
     mavenCentral()
@@ -19,5 +19,5 @@ sourceSets {
 }
 
 dependencies {
-    compile 'com.github.simbiose:Encryption:1.4.0'
+    compile 'com.github.simbiose:Encryption:2.0.0'
 }

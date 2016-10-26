@@ -9,38 +9,12 @@ import third.part.android.util.Base64;
  */
 final class Examples {
 
-    /**
-     * The Encryption library is easy to use
-     */
-    void normalUsage() {
+    void commonUsage() {
         System.out.println("---- Normal Usage ---------------------------------------------------");
         // it is how to get the Encryption instance. You should use your own key your own salt and your own byte array
         Encryption encryption = Encryption.getDefault("SomeKey", "SomeSalt", new byte[16]);
 
         String secretText = "This is a text to be encrypt, it can be any string that you want";
-
-        // the method encryptOrNull will encrypt your text and if some error occurs will return null
-        // if you want handle the errors you can call the encrypt method directly
-        String encrypted = encryption.encryptOrNull(secretText);
-
-        // just printing to see the text and the encrypted string
-        System.out.println("This is our secret text: " + secretText);
-        System.out.println("And this is our encrypted text: " + encrypted);
-
-        // now you can send the encrypted text by network or save in disk securely or do wherever
-        // that you want, but remember encrypt is not all, we need decrypt too, so lets go do it
-        String decrypted = encryption.decryptOrNull(encrypted);
-
-        // the decrypted text should be equals the encrypted
-        System.out.println("And finally this is our decrypted text: " + decrypted);
-    }
-
-    void lowIteration() {
-        System.out.println("---- Low Iteration Usage --------------------------------------------");
-        // Low iteration is equals the default but faster once it uses only 1 iteration instead of 65536
-        Encryption encryption = Encryption.getLowIteration("SomeKey", "SomeSalt", new byte[16]);
-
-        String secretText = "Low iteration is faster but may you will prefer an async approach with a big iteration count";
 
         // the method encryptOrNull will encrypt your text and if some error occurs will return null
         // if you want handle the errors you can call the encrypt method directly
@@ -121,30 +95,6 @@ final class Examples {
         System.out.println("A print from original thread");
 
         // you can do the same thing to decrypt with decryptAsync
-    }
-
-    /**
-     * By default Encryption do not log, but you can intercept logs
-     */
-    void interceptLog() {
-        // you can intercept logs and sed direct to System.out with:
-        Logger.enableDefaultLog();
-
-        // you can turn off the log too, by default the log is off
-        Logger.disableLog();
-
-        // you can also intercept the log and do wherever you want
-        Logger.setLogDelegate(new Logger.EncryptionLogDelegate() {
-            @Override
-            public void log(String message, Exception e) {
-                System.out.println("this is an exception log: " + message + ", " + e.toString());
-            }
-
-            @Override
-            public void log(String message) {
-                System.out.println("this is a normal log: " + message);
-            }
-        });
     }
 
 }
