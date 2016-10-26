@@ -6,13 +6,12 @@ android {
     buildToolsVersion '24.0.3'
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 1
         targetSdkVersion 24
     }
 
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.github.simbiose:Encryption:2.0.0'
 }

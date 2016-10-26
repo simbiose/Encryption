@@ -1,7 +1,7 @@
 package se.simbio.encryption;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -14,7 +14,7 @@ import third.part.android.util.Base64;
 /**
  * each click listener is an example of Encryption
  */
-public final class MainActivity extends AppCompatActivity {
+public final class MainActivity extends Activity {
 
     private static final String TAG = "Encryption";
 
