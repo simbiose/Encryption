@@ -1,16 +1,3 @@
-/**
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package se.simbio.encryption;
 
 import java.io.UnsupportedEncodingException;
@@ -61,21 +48,7 @@ public class Encryption {
         try {
             return Builder.getDefaultBuilder(key, salt, iv).build();
         } catch (NoSuchAlgorithmException e) {
-            Logger.log(e.getMessage(), e);
-            return null;
-        }
-    }
-
-    /**
-     * @return an default encryption instance with iteration count equals to 1 to faster run
-     * purposes or {@code null} if occur some Exception, you can create yur own Encryption instance
-     * using the Encryption.Builder
-     */
-    public static Encryption getLowIteration(String key, String salt, byte[] iv) {
-        try {
-            return Builder.getDefaultBuilder(key, salt, iv).setIterationCount(1).build();
-        } catch (NoSuchAlgorithmException e) {
-            Logger.log(e.getMessage(), e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -133,7 +106,7 @@ public class Encryption {
         try {
             return encrypt(data);
         } catch (Exception e) {
-            Logger.log(e.getMessage(), e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -219,7 +192,7 @@ public class Encryption {
         try {
             return decrypt(data);
         } catch (Exception e) {
-            Logger.log(e.getMessage(), e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -353,7 +326,7 @@ public class Encryption {
                     .setKeyLength(128)
                     .setKeyAlgorithm("AES")
                     .setCharsetName("UTF8")
-                    .setIterationCount(65536)
+                    .setIterationCount(1)
                     .setDigestAlgorithm("SHA1")
                     .setBase64Mode(Base64.DEFAULT)
                     .setAlgorithm("AES/CBC/PKCS5Padding")
@@ -375,8 +348,6 @@ public class Encryption {
             setIvParameterSpec(new IvParameterSpec(getIv()));
             return new Encryption(this);
         }
-
-        //region getters and setters
 
         /**
          * @return the charset name
@@ -617,8 +588,6 @@ public class Encryption {
             mDigestAlgorithm = digestAlgorithm;
             return this;
         }
-
-        //endregion
 
     }
 
