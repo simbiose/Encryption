@@ -24,7 +24,10 @@ compile 'com.github.simbiose:Encryption:2.0.0'
 
 3º Get an Encryption instance
 ```
-Encryption encryption = Encryption.getDefault("YourKey", "YourSalt", yourByteIvArray);
+String key = "YourKey";
+String salt = "YourSalt";
+byte[] iv = new byte[16];
+Encryption encryption = Encryption.getDefault(key, salt, iv);
 ```
 
 4º Encrypt your text
@@ -56,7 +59,7 @@ Encryption encryption = new Encryption.Builder()
                 .build();
 ```
 
-More examples see Examples folder, there is an Android and a Java project, or see the tests.
+See more on Examples folder, there is an Android, a Java and a Kotlin project.
 
 #FAQ#
 

@@ -1,0 +1,34 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+group 'se.simbio.encryption.kotlin.example'
+version '2.0.0'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.4'
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://jitpack.io'
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+dependencies {
+    compile 'com.github.simbiose:Encryption:2.0.0'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.4'
+}
