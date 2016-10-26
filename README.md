@@ -19,36 +19,12 @@ allprojects {
 
 2º Add the gradle dependency
 ```
-compile 'com.github.simbiose:Encryption:1.4.0'
+compile 'com.github.simbiose:Encryption:2.0.0'
 ```
 
-3º Use Encryption, choose one way below:
-
-3 - a) Get a default Encryption instance
+3º Get an Encryption instance
 ```
 Encryption encryption = Encryption.getDefault("YourKey", "YourSalt", yourByteIvArray);
-```
-
-3 - b) Get a low iteration Encryption instance. It is similar to previous way, but it is faster once it use only 1 iteration instead of 65536
-```
-Encryption encryption = Encryption.getLowIteration("YourKey", "YourSalt", yourByteIvArray);
-```
-
-3 - c) Build a custom Encryption instance, the power in your hands
-```
-Encryption encryption = new Encryption.Builder()
-                .setKeyLength(128)
-                .setKey("YourKey")
-                .setSalt("YourSalt")
-                .setIv(yourByteIvArray)
-                .setCharsetName("UTF8")
-                .setIterationCount(65536)
-                .setDigestAlgorithm("SHA1")
-                .setBase64Mode(Base64.DEFAULT)
-                .setAlgorithm("AES/CBC/PKCS5Padding")
-                .setSecureRandomAlgorithm("SHA1PRNG")
-                .setSecretKeyType("PBKDF2WithHmacSHA1")
-                .build();
 ```
 
 4º Encrypt your text
@@ -59,6 +35,25 @@ String encrypted = encryption.encryptOrNull("Text to be encrypt");
 5º Decrypt your text
 ```
 String decrypted = encryption.decryptOrNull(encrypted);
+```
+
+#Custom usage#
+
+You can use you own builder
+```
+Encryption encryption = new Encryption.Builder()
+                .setKeyLength(128)
+                .setKey("YourKey")
+                .setSalt("YourSalt")
+                .setIv(yourByteIvArray)
+                .setCharsetName("UTF8")
+                .setIterationCount(1)
+                .setDigestAlgorithm("SHA1")
+                .setBase64Mode(Base64.DEFAULT)
+                .setAlgorithm("AES/CBC/PKCS5Padding")
+                .setSecureRandomAlgorithm("SHA1PRNG")
+                .setSecretKeyType("PBKDF2WithHmacSHA1")
+                .build();
 ```
 
 More examples see Examples folder, there is an Android and a Java project, or see the tests.
@@ -73,17 +68,17 @@ More examples see Examples folder, there is an Android and a Java project, or se
 	 - You have the power to handle the exceptions, instead of uses `encryptOrNull` method just uses the `encrypt` method. The same for the `decryptOrNull`, just uses the `decrypt` method.
  - I'm getting problems with main thread, what to do?
 	 - Encrypt routines can take time, so you can uses the `encryptAsync` with a `Encryption.Callback`to avoid ANR'S. The same for `decryptAsync`
- - I'm an older user, version 1.1 or less, what to do to update Encrypt to version 1.2+?
+ - I'm an older user, version 1.4 or less, what to do to update Encrypt to version 2.+?
+     - The library has changed the default iteration count from 65536 to 1, it improve the performance, if you have a code using the old version or if you prefer to use a big iteration count you just need to use a custom builder instead of get the default builder and set the iteration count you want
+     - As far as the library uses 1 as default iteration count we do not need anymore the getLowIteration and it was removed from project, if you use it you can just change to getDefault
+     - MIT is the project license so feel free to use it :tada:
+ - I'm a very older user, version 1.1 or less, what to do to update Encrypt to version 1.2+?
 	 - The library has several changes in his structure in version 1.2, both in algorithm and in code usage, so if you are an older user you need migrate the encrypted stuff or configure the `Builder` manually to the same parameters used in version 1.1 and olds.
 
 
 ##Want to contribute?##
 
 Fell free to contribute, We really like pull requests :octocat:
-
-##License##
-
-GNU Lesser General Public License at version 3
 
 
 ###Third part###
