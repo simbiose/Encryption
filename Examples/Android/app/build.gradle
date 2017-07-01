@@ -10,6 +10,15 @@ android {
         targetSdkVersion 25
     }
 
+    buildTypes {
+        all {
+            shrinkResources true
+            minifyEnabled true
+            proguardFile getDefaultProguardFile("proguard-android.txt")
+            proguardFile "proguard-rules.pro"
+        }
+    }
+
 }
 
 dependencies {
