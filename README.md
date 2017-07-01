@@ -19,7 +19,7 @@ allprojects {
 
 2º Add the gradle dependency
 ```
-compile 'com.github.simbiose:Encryption:2.0.0'
+compile 'com.github.simbiose:Encryption:2.0.1'
 ```
 
 3º Get an Encryption instance
