@@ -1,15 +1,17 @@
-apply plugin: 'java'
 apply plugin: 'kotlin'
+apply plugin: 'application'
+
+mainClassName = 'se.simbio.encryption.MainKt'
 
 group 'se.simbio.encryption.kotlin.example'
-version '2.0.0'
+version '2.0.1'
 
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.4'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.3'
     }
 }
 
@@ -21,14 +23,10 @@ repositories {
 }
 
 sourceSets {
-    main {
-        java {
-            srcDir 'src'
-        }
-    }
+    main.kotlin.srcDirs += 'src'
 }
 
 dependencies {
-    compile 'com.github.simbiose:Encryption:2.0.0'
-    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.4'
+    implementation 'com.github.simbiose:Encryption:2.0.1'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.1.3'
 }

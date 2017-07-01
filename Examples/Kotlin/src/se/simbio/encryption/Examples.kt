@@ -1,8 +1,7 @@
 package se.simbio.encryption
 
-import java.security.NoSuchAlgorithmException
-
 import third.part.android.util.Base64
+import java.security.NoSuchAlgorithmException
 
 /**
  * each method is an example of Encryption

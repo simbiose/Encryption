@@ -1,7 +1,10 @@
 apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'se.simbio.encryption.Main'
 
 group 'se.simbio.encryption.java.example'
-version '2.0.0'
+version '2.0.1'
 
 repositories {
     mavenCentral()
@@ -19,5 +22,5 @@ sourceSets {
 }
 
 dependencies {
-    compile 'com.github.simbiose:Encryption:2.0.0'
+    implementation 'com.github.simbiose:Encryption:2.0.1'
 }
