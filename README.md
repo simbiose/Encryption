@@ -5,7 +5,7 @@ Encryption is a simple way to encrypt and decrypt strings on Android and Java pr
 
 [![](https://jitpack.io/v/simbiose/Encryption.svg)](https://jitpack.io/#simbiose/Encryption) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-encryption-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/935) [![Build Status](https://semaphoreci.com/api/v1/projects/f74e04e6-bd08-4faa-ba77-a5ee51d0f82e/680132/badge.svg)](https://semaphoreci.com/ademar111190/encryption)
 
-#How to use#
+## How to use ##
 
 1º Add [JitPack](https://jitpack.io/) to your build file
 ```
@@ -40,7 +40,7 @@ String encrypted = encryption.encryptOrNull("Text to be encrypt");
 String decrypted = encryption.decryptOrNull(encrypted);
 ```
 
-#Custom usage#
+## Custom usage ##
 
 You can use you own builder
 ```
@@ -61,7 +61,7 @@ Encryption encryption = new Encryption.Builder()
 
 See more on Examples folder, there is an Android, a Java and a Kotlin project.
 
-#FAQ#
+## FAQ ##
 
  - What is Encryption library?
 	 - Encryption library is an Open Source library to help encryption routines in Android and Java applications, our target is to be simple and secure.
@@ -79,12 +79,12 @@ See more on Examples folder, there is an Android, a Java and a Kotlin project.
 	 - The library has several changes in his structure in version 1.2, both in algorithm and in code usage, so if you are an older user you need migrate the encrypted stuff or configure the `Builder` manually to the same parameters used in version 1.1 and olds.
 
 
-##Want to contribute?##
+### Want to contribute? ###
 
 Fell free to contribute, We really like pull requests :octocat:
 
 
-###Third part###
+#### Third part ####
 
 - Copyright (C) 2010 The Android Open Source Project, applied to:
 	- Base64 (third.part.android.util.Base64) original comes from [here](https://github.com/android/platform_frameworks_base/blob/ab69e29c1927bdc6143324eba5ccd78f7c43128d/core/java/android/util/Base64.java)
