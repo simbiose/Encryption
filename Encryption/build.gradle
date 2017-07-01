@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group 'se.simbio.encryption'
-version '2.0.0'
+version '2.0.1'
 
 sourceCompatibility = 1.6
 
@@ -29,5 +29,5 @@ test {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }

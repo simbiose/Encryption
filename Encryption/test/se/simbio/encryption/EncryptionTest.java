@@ -1,6 +1,6 @@
 package se.simbio.encryption;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -17,10 +17,15 @@ import javax.crypto.NoSuchPaddingException;
 
 import third.part.android.util.Base64;
 
-public class EncryptionTest extends TestCase {
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
+
+public class EncryptionTest {
 
     private final CountDownLatch mSignal = new CountDownLatch(1);
 
+    @Test
     public void test_commonCase() {
         Encryption encryption = Encryption.getDefault("JustAKey", "some_salt", new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
         assertNotNull(encryption);
@@ -32,6 +37,7 @@ public class EncryptionTest extends TestCase {
         assertEquals(secretText, decrypted);
     }
 
+    @Test
     public void test_randomText() {
         String key = "$3creTQei";
         String salt = "anotherS@lt";
@@ -53,6 +59,7 @@ public class EncryptionTest extends TestCase {
         assertEquals(decryptedText, textToEncrypt);
     }
 
+    @Test
     public void test_differentInstances() {
         String key = "yekIsKeyInverted";
         String salt = "tlAsIsSaltInverted";
@@ -69,6 +76,7 @@ public class EncryptionTest extends TestCase {
         assertEquals(decryptedText, textToEncrypt);
     }
 
+    @Test
     public void test_backgroundMode() throws Throwable {
         final String key = "£øЯ€µ%!þZµµ";
         final String salt = "background_S_al_t";
@@ -104,6 +112,7 @@ public class EncryptionTest extends TestCase {
         mSignal.await(10, TimeUnit.SECONDS);
     }
 
+    @Test
     public void test_builder() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeySpecException {
         Encryption encryption = new Encryption.Builder()
                 .setKeyLength(128)
