@@ -3,7 +3,7 @@ Encryption
 
 Encryption is a simple way to encrypt and decrypt strings on Android and Java project.
 
-[![](https://jitpack.io/v/simbiose/Encryption.svg)](https://jitpack.io/#simbiose/Encryption) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-encryption-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/935) [![Build Status](https://semaphoreci.com/api/v1/projects/f74e04e6-bd08-4faa-ba77-a5ee51d0f82e/680132/badge.svg)](https://semaphoreci.com/ademar111190/encryption)
+[![](https://jitpack.io/v/simbiose/Encryption.svg)](https://jitpack.io/#simbiose/Encryption) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-encryption-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/935) [![Build Status](https://www.bitrise.io/app/fc607e87ae734d03/status.svg?token=dtlsgmtrxOrDdVqdtaxK-g&branch=master)](https://www.bitrise.io/app/fc607e87ae734d03) [![Build Status](https://semaphoreci.com/api/v1/projects/f74e04e6-bd08-4faa-ba77-a5ee51d0f82e/680132/badge.svg)](https://semaphoreci.com/ademar111190/encryption)
 
 ## How to use ##
 
